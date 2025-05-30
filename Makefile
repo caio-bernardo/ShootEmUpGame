@@ -16,7 +16,17 @@ $(BUILD):
 	@echo "Creating output folder"
 	@mkdir -p $@
 
-.PHONY: clean build run
 clean:
 	@echo "Cleaning project"
 	rm -fr $(BUILD)
+
+help:
+	@echo "Available targets:"
+	@echo "   run        : Run the application"
+	@echo "   build      : Compile the Java project"
+	@echo "   clean      : Remove compiled projects"
+	@echo "   help       : Show this help"
+
+
+
+.PHONY: clean build run help
