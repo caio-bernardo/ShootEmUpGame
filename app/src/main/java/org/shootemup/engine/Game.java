@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.shootemup.GameLib;
+import org.shootemup.components.Explosion;
 import org.shootemup.components.Vector2D;
 import org.shootemup.entities.Background;
 import org.shootemup.entities.Enemy;
@@ -27,11 +28,12 @@ public class Game implements Runnable {
     private List<Enemy> enemies;
     private long nextCommonSpawn = currentTime + 2000;
 
+    private List<Explosion> explosions;
+
     private Player player;
 
 
     public Game() {
-
         nearStarBackground = Background.forStars(Color.GRAY, 20, 3, 0.070);
         farStarBackground = Background.forStars(Color.DARK_GRAY, 20, 2, 0.045);
 
@@ -43,8 +45,10 @@ public class Game implements Runnable {
 
         projectiles = new ArrayList<>(200);
         enemies = new ArrayList<>(10);
+        explosions = new ArrayList<>(15);
     }
 
+    /// Lê a entrada do usuário e reage
     private void read_input() {
         if(GameLib.iskeyPressed(GameLib.KEY_UP)) player.move(delta, Direction.NORTH);
         if(GameLib.iskeyPressed(GameLib.KEY_DOWN)) player.move(delta, Direction.SOUTH);
@@ -64,16 +68,15 @@ public class Game implements Runnable {
         /* Colisões */
         // TODO: checar colisoes
         // TODO: resolver colisoes
-        // Se colisao, deleta colidido e coloca uma explosão no lugar da entity
-        // Array de explosoes
-        // Explosao: position e startTime
 
-
-        /* Movimenta entidades */
+        /* Movimenta/ Atualiza entidades */
 
         // Movimenta os planos de fundo
         nearStarBackground.animate(delta);
         farStarBackground.animate(delta);
+
+        // Atualiza delta das explosoes
+        explosions.forEach(expl -> expl.update(currentTime));
 
         // Atualiza a posicao dos projeteis
         projectiles.forEach(proj -> proj.move(delta));
@@ -89,7 +92,6 @@ public class Game implements Runnable {
             Vector2D pos = enemy.getPosition();
             return pos.getY() > GameLib.HEIGHT + 10;
         });
-
         // Inimigos fazem uma tentativa de tiro
         enemies.forEach(e -> e.shot(currentTime)
             .ifPresent(bullet -> projectiles.add(bullet))
@@ -114,6 +116,8 @@ public class Game implements Runnable {
         projectiles.forEach((b)->b.render());
         // Renderiza inimigos
         enemies.forEach((e)->e.render());
+        // Renderiza explosoes
+        explosions.forEach(expl -> expl.render());
 
         // Renderiza o player
         player.render();
