@@ -1,6 +1,7 @@
 package org.shootemup.entities;
 
 import java.awt.Color;
+import java.util.Optional;
 
 import org.shootemup.GameLib;
 import org.shootemup.components.Vector2D;
@@ -11,9 +12,11 @@ public class Player implements Renderable {
     private Vector2D position;
     private double radius;
     private Vector2D velocity;
+    private Color color = Color.BLUE;
+    private long nextShot = 0;
+
     private double explosionStart = 0.0;
     private double explosionEnd = 0.0;
-    private long nextShot = 0;
 
     public Player(Vector2D pos, double radius, Vector2D velocity) {
         position = pos;
@@ -42,13 +45,24 @@ public class Player implements Renderable {
         }
     }
 
+
+    public Optional<Projectile.Bullet> shot(long currentTime) {
+        if (currentTime > nextShot) {
+            var bullet = new Projectile.Bullet(new Vector2D(position.getX(), position.getY() - 2 * radius));
+            nextShot = currentTime + 100;
+            return Optional.of(bullet);
+        }
+        return Optional.empty();
+    }
+
+
     public void update() {
         // Collision check and solver
     }
 
 	@Override
 	public void render() {
-    	GameLib.setColor(Color.BLUE);
+    	GameLib.setColor(color);
 		GameLib.drawPlayer(position.getX(), position.getY(), radius);
 	}
 

@@ -1,11 +1,15 @@
 package org.shootemup.engine;
 
 import java.awt.Color;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 import org.shootemup.GameLib;
 import org.shootemup.components.Vector2D;
 import org.shootemup.entities.Background;
 import org.shootemup.entities.Player;
+import org.shootemup.entities.Projectile;
 import org.shootemup.utils.Direction;
 
 /// Classe que representa o sistema de jogo
@@ -19,6 +23,7 @@ public class Game implements Runnable {
     private Background farStarBackground;
     private Background nearStarBackground;
 
+    private List<Projectile> projectiles;
 
     private Player player;
 
@@ -32,6 +37,8 @@ public class Game implements Runnable {
             12.0,
             Vector2D.ofScalar(0.25)
         );
+
+        projectiles = new ArrayList<>(10);
     }
 
     protected void read_input() {
@@ -40,13 +47,29 @@ public class Game implements Runnable {
         if(GameLib.iskeyPressed(GameLib.KEY_LEFT)) player.move(delta, Direction.WEST);
         if(GameLib.iskeyPressed(GameLib.KEY_RIGHT)) player.move(delta, Direction.EAST);
 
+        if (GameLib.iskeyPressed(GameLib.KEY_CONTROL)) {
+            Optional<Projectile.Bullet> bullet = player.shot(currentTime);
+            if (bullet.isPresent()) {
+                projectiles.add(bullet.get());
+            }
+        }
+
         if(GameLib.iskeyPressed(GameLib.KEY_ESCAPE)) isRunning = false;
     }
 
     protected void update() {
 
+        // Anima os planos de fundo
         nearStarBackground.animate(delta);
         farStarBackground.animate(delta);
+
+        // Atualiza a posicao dos projeteis
+        projectiles.forEach(proj -> proj.move(delta));
+        // Remove projéteis fora da tela
+        projectiles.removeIf(proj -> {
+            Vector2D pos = proj.getPosition();
+            return pos.getX() < 0 || pos.getX() > GameLib.WIDTH || pos.getY() < 0 || pos.getY() > GameLib.HEIGHT;
+        });
     }
 
     protected void render() {
@@ -56,6 +79,7 @@ public class Game implements Runnable {
         nearStarBackground.render();
 
         player.render();
+        projectiles.forEach((b)->b.render());
 
         GameLib.display();
     }
