@@ -1,12 +1,10 @@
-package org.shootemup.entities;
+package org.shootemup.components;
 
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.shootemup.GameLib;
-import org.shootemup.components.Particle2D;
-import org.shootemup.components.Vector2D;
 import org.shootemup.utils.Renderable;
 
 /**
