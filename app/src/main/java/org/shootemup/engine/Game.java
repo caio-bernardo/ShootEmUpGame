@@ -3,11 +3,11 @@ package org.shootemup.engine;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import org.shootemup.GameLib;
 import org.shootemup.components.Vector2D;
 import org.shootemup.entities.Background;
+import org.shootemup.entities.Enemy;
 import org.shootemup.entities.Player;
 import org.shootemup.entities.Projectile;
 import org.shootemup.utils.Direction;
@@ -24,8 +24,11 @@ public class Game implements Runnable {
     private Background nearStarBackground;
 
     private List<Projectile> projectiles;
+    private List<Enemy> enemies;
+    private long nextCommonSpawn = currentTime + 2000;
 
     private Player player;
+
 
     public Game() {
 
@@ -38,28 +41,37 @@ public class Game implements Runnable {
             Vector2D.ofScalar(0.25)
         );
 
-        projectiles = new ArrayList<>(10);
+        projectiles = new ArrayList<>(200);
+        enemies = new ArrayList<>(10);
     }
 
-    protected void read_input() {
+    private void read_input() {
         if(GameLib.iskeyPressed(GameLib.KEY_UP)) player.move(delta, Direction.NORTH);
         if(GameLib.iskeyPressed(GameLib.KEY_DOWN)) player.move(delta, Direction.SOUTH);
         if(GameLib.iskeyPressed(GameLib.KEY_LEFT)) player.move(delta, Direction.WEST);
         if(GameLib.iskeyPressed(GameLib.KEY_RIGHT)) player.move(delta, Direction.EAST);
 
         if (GameLib.iskeyPressed(GameLib.KEY_CONTROL)) {
-            Optional<Projectile.Bullet> bullet = player.shot(currentTime);
-            if (bullet.isPresent()) {
-                projectiles.add(bullet.get());
-            }
+            // Tenta atirar se for um sucesso adiciona projétil a lista de projeteis
+            player.shot(currentTime).ifPresent((bullet) -> projectiles.add(bullet));
         }
 
         if(GameLib.iskeyPressed(GameLib.KEY_ESCAPE)) isRunning = false;
     }
 
-    protected void update() {
+    private void update() {
 
-        // Anima os planos de fundo
+        /* Colisões */
+        // TODO: checar colisoes
+        // TODO: resolver colisoes
+        // Se colisao, deleta colidido e coloca uma explosão no lugar da entity
+        // Array de explosoes
+        // Explosao: position e startTime
+
+
+        /* Movimenta entidades */
+
+        // Movimenta os planos de fundo
         nearStarBackground.animate(delta);
         farStarBackground.animate(delta);
 
@@ -70,16 +82,41 @@ public class Game implements Runnable {
             Vector2D pos = proj.getPosition();
             return pos.getX() < 0 || pos.getX() > GameLib.WIDTH || pos.getY() < 0 || pos.getY() > GameLib.HEIGHT;
         });
+
+        // Movimenta e remove inimigos fora da tela
+        enemies.forEach(e -> e.move(delta));
+        enemies.removeIf(enemy -> {
+            Vector2D pos = enemy.getPosition();
+            return pos.getY() > GameLib.HEIGHT + 10;
+        });
+
+        // Inimigos fazem uma tentativa de tiro
+        enemies.forEach(e -> e.shot(currentTime)
+            .ifPresent(bullet -> projectiles.add(bullet))
+        );
+
+        /* Spawnar inimigos */
+        if (currentTime > nextCommonSpawn) {
+            enemies.add(Enemy.forCommon(
+                new Vector2D(Math.random() * (GameLib.WIDTH - 20) + 10, -10.0)
+            ));
+            nextCommonSpawn = currentTime + 500;
+        }
     }
 
-    protected void render() {
+    private void render() {
 
         // Renderiza cada background
         farStarBackground.render();
         nearStarBackground.render();
 
-        player.render();
+        // Renderiza os projéteis
         projectiles.forEach((b)->b.render());
+        // Renderiza inimigos
+        enemies.forEach((e)->e.render());
+
+        // Renderiza o player
+        player.render();
 
         GameLib.display();
     }
@@ -108,7 +145,7 @@ public class Game implements Runnable {
 	}
 
 	/// Mantem a thread em estado de espera
-	protected static void busyWait(long time){
+	private static void busyWait(long time){
 		while(System.currentTimeMillis() < time) Thread.yield();
 	}
 }

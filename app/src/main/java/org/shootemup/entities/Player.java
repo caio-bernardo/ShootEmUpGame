@@ -15,6 +15,8 @@ public class Player implements Renderable {
     private Color color = Color.BLUE;
     private long nextShot = 0;
 
+    private long reckoil = 100;
+
     private double explosionStart = 0.0;
     private double explosionEnd = 0.0;
 
@@ -45,11 +47,14 @@ public class Player implements Renderable {
         }
     }
 
-
     public Optional<Projectile.Bullet> shot(long currentTime) {
         if (currentTime > nextShot) {
-            var bullet = new Projectile.Bullet(new Vector2D(position.getX(), position.getY() - 2 * radius));
-            nextShot = currentTime + 100;
+            // dispara um novo tiro a partir da ponta do nave na direção Norte
+            var bullet = new Projectile.Bullet(
+                new Vector2D(position.getX(), position.getY() - 2 * radius),
+                new Vector2D(0.0, -1.0)
+            );
+            nextShot = currentTime + reckoil;
             return Optional.of(bullet);
         }
         return Optional.empty();
@@ -65,5 +70,6 @@ public class Player implements Renderable {
     	GameLib.setColor(color);
 		GameLib.drawPlayer(position.getX(), position.getY(), radius);
 	}
+
 
 }

@@ -7,9 +7,9 @@ import org.shootemup.components.Vector2D;
 import org.shootemup.utils.Renderable;
 
 public abstract class Projectile implements Renderable {
-    private Vector2D position;
-    private Vector2D velocity;
-    private Color color;
+    protected Vector2D position;
+    protected Vector2D velocity;
+    protected Color color;
 
     protected Projectile(Vector2D position, Vector2D velocity, Color color) {
         this.position = position;
@@ -25,43 +25,42 @@ public abstract class Projectile implements Renderable {
 
     public static class Bullet extends Projectile {
 
-        public Bullet(Vector2D position) {
-            super(position, new Vector2D(0.0, -1.0), Color.GREEN);
+        public Bullet(Vector2D position, Vector2D velocity) {
+            super(position, velocity, Color.GREEN);
         }
 
         @Override
         public void move(long dt) {
-            super.position = super.position.addVector(super.velocity.multiplyScalar(dt));
+            position = position.addVector(velocity.multiplyScalar(dt));
         }
 
 
   		@Override
   		public void render() {
-            GameLib.setColor(super.color);
-            GameLib.drawLine(super.position.getX(), super.position.getY() - 5, super.position.getX(), super.position.getY() + 5);
-            GameLib.drawLine(super.position.getX() - 1, super.position.getY() - 3, super.position.getX() - 1, super.position.getY() + 3);
-            GameLib.drawLine(super.position.getX() + 1, super.position.getY() - 3, super.position.getX() + 1, super.position.getY() + 3);
+            GameLib.setColor(color);
+            GameLib.drawLine(position.getX(), position.getY() - 5, position.getX(), position.getY() + 5);
+            GameLib.drawLine(position.getX() - 1, position.getY() - 3, position.getX() - 1, position.getY() + 3);
+            GameLib.drawLine(position.getX() + 1, position.getY() - 3, position.getX() + 1, position.getY() + 3);
   		}
 
     }
 
     public static class Ball extends Projectile {
-        private double radius = 1.0;
+        private double radius = 2.0;
 
-        public Ball(Vector2D position) {
-            super(position, new Vector2D(0.0, 1.0), Color.ORANGE);
+        public Ball(Vector2D position, Vector2D velocity) {
+            super(position, velocity, Color.RED);
         }
 
 		@Override
 		public void render() {
-			// TODO Auto-generated method stub
-			throw new UnsupportedOperationException("Unimplemented method 'render'");
+			GameLib.setColor(color);
+			GameLib.drawCircle(position.getX(), position.getY(), radius);
 		}
 
 		@Override
 		public void move(long dt) {
-			// TODO Auto-generated method stub
-			throw new UnsupportedOperationException("Unimplemented method 'move'");
+		    position = position.addVector(velocity.multiplyScalar(dt));
 		}
 
     }
