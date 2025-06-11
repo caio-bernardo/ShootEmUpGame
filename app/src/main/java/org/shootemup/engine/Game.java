@@ -5,9 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.shootemup.GameLib;
+import org.shootemup.components.Background;
 import org.shootemup.components.Explosion;
 import org.shootemup.components.Vector2D;
-import org.shootemup.entities.Background;
 import org.shootemup.entities.Enemy;
 import org.shootemup.entities.Player;
 import org.shootemup.entities.Projectile;

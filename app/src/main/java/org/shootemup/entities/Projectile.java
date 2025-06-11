@@ -23,6 +23,7 @@ public abstract class Projectile implements Renderable {
         return position;
     }
 
+    /// Representa um projétil em formato de bala
     public static class Bullet extends Projectile {
 
         public Bullet(Vector2D position, Vector2D velocity) {
@@ -45,6 +46,7 @@ public abstract class Projectile implements Renderable {
 
     }
 
+    /// Representa um projétil em formato esférico
     public static class Ball extends Projectile {
         private double radius = 2.0;
 

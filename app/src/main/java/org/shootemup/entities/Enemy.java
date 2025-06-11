@@ -24,6 +24,7 @@ public class Enemy implements Renderable {
         this.color = color;
     }
 
+    /// Factory para um inimigo de tipo comum
     public static Enemy forCommon(Vector2D pos) {
         return new Enemy(Color.CYAN, pos, 9.0, new Vector2D(0.0, 0.20 + Math.random() * 0.15), 0.0);
     }

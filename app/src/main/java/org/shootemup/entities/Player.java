@@ -17,9 +17,6 @@ public class Player implements Renderable {
 
     private long reckoil = 100;
 
-    private double explosionStart = 0.0;
-    private double explosionEnd = 0.0;
-
     public Player(Vector2D pos, double radius, Vector2D velocity) {
         position = pos;
         this.radius = radius;
