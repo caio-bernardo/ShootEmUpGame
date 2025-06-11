@@ -1,6 +1,8 @@
-package org.shootemup;
+
 
 import java.awt.Color;
+
+import org.shootemup.GameLib;
 
 /***********************************************************************/
 /*                                                                     */
