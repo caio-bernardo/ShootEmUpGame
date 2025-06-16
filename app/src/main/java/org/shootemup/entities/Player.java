@@ -13,6 +13,7 @@ public class Player extends Entity {
     private boolean isAlive = true;
     private long nextShot = 0;
     private long reckoil = 100;
+    private long reviveAt = 0;
 
     public Player(Vector2D pos, double radius, Vector2D velocity) {
         position = pos;
@@ -44,17 +45,21 @@ public class Player extends Entity {
         }
     }
 
+    public void dieForDuration(long now, long durationMilis) {
+        isAlive = false;
+        reviveAt = now + durationMilis;
+    }
+
     public void die() {
         isAlive = false;
     }
 
-    public void revive() {
-        isAlive = true;
+    public void revive(long now) {
+        if (now > reviveAt) {
+            isAlive = true;
+        }
     }
 
-    public void setAlive(boolean v) {
-           isAlive = v;
-    }
 
     public Optional<Projectile.Bullet> shot(long currentTime) {
         if (!isAlive) return Optional.empty();

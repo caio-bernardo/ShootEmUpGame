@@ -3,9 +3,7 @@ package org.shootemup.engine;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import org.shootemup.GameLib;
 import org.shootemup.components.Background;
@@ -19,7 +17,6 @@ import org.shootemup.utils.Direction;
 /// Classe que representa o sistema de jogo
 // Runnable indica que a classe é executavel e nunca retorna
 public class Game implements Runnable {
-    private ScheduledExecutorService scheduler;
     private long currentTime = System.currentTimeMillis();
     private long delta;
 
@@ -68,6 +65,8 @@ public class Game implements Runnable {
     }
 
     private void update() {
+        // try to revive the player
+        player.revive(currentTime);
 
         /* Colisões */
 
@@ -77,7 +76,7 @@ public class Game implements Runnable {
             .forEach(proj -> {
                 if (player.intersects(proj)) {
                     player.die();
-                    scheduler.schedule(() -> player.revive(), 2000, TimeUnit.MILLISECONDS);
+                    player.dieForDuration(currentTime, 2000);
                     explosions.add(new Explosion(player.getPosition(), currentTime, 2000));
                 }
             });
@@ -86,7 +85,7 @@ public class Game implements Runnable {
         enemies.forEach(enemy -> {
            if (player.intersects(enemy)) {
                player.die();
-               scheduler.schedule(() -> player.revive(), 2000, TimeUnit.MILLISECONDS);
+               player.dieForDuration(currentTime, 2000);
                explosions.add(new Explosion(player.getPosition(), currentTime, 2000));
            }
         });
@@ -163,30 +162,24 @@ public class Game implements Runnable {
 
     @Override
 	public void run() {
-	    try (ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1)) {
-			this.scheduler = scheduler;
-    	    // inicializa a biblioteca gráfica
-        	GameLib.initGraphics();
-            //GameLib.initGraphics_SAFE_MODE();  // chame esta versão do método caso nada seja desenhado na janela do jogo.
+   	    // inicializa a biblioteca gráfica
+       	GameLib.initGraphics();
+        //GameLib.initGraphics_SAFE_MODE();  // chame esta versão do método caso nada seja desenhado na janela do jogo.
 
-            isRunning = true;
+        isRunning = true;
 
-            while (isRunning) {
-                delta = System.currentTimeMillis() - currentTime;
-                currentTime = System.currentTimeMillis();
+        while (isRunning) {
+            delta = System.currentTimeMillis() - currentTime;
+            currentTime = System.currentTimeMillis();
 
-                update();
-                read_input();
-                render();
+            update();
+            read_input();
+            render();
 
-                // Deixa a thread em _idle_ para normalizar o frame rate
-                busyWait(currentTime + 3);
-            }
-    	    System.exit(0);
-		} catch (Exception e) {
-            System.out.println("Alguma coisa deu errado: " + e);
-            System.exit(1);
-		}
+            // Deixa a thread em _idle_ para normalizar o frame rate
+            busyWait(currentTime + 3);
+        }
+   	    System.exit(0);
 	}
 
 	/// Mantem a thread em estado de espera
