@@ -5,26 +5,26 @@ import java.util.Optional;
 
 import org.shootemup.GameLib;
 import org.shootemup.components.Vector2D;
+import org.shootemup.utils.Collidable;
 import org.shootemup.utils.Direction;
-import org.shootemup.utils.Renderable;
 
-public class Player implements Renderable {
-    private Vector2D position;
-    private double radius;
-    private Vector2D velocity;
-    private Color color = Color.BLUE;
+
+public class Player extends Entity {
+    private boolean isAlive = true;
     private long nextShot = 0;
-
     private long reckoil = 100;
 
     public Player(Vector2D pos, double radius, Vector2D velocity) {
         position = pos;
         this.radius = radius;
         this.velocity = velocity;
+        color = Color.BLUE;
     }
 
 
+
     public void move(long dt, Direction dir) {
+        if (!isAlive) return;
         switch (dir) {
             case NORTH: // cima
                 position.y = Math.max(position.getY() - dt * velocity.getY(), 25.0);
@@ -44,7 +44,20 @@ public class Player implements Renderable {
         }
     }
 
+    public void die() {
+        isAlive = false;
+    }
+
+    public void revive() {
+        isAlive = true;
+    }
+
+    public void setAlive(boolean v) {
+           isAlive = v;
+    }
+
     public Optional<Projectile.Bullet> shot(long currentTime) {
+        if (!isAlive) return Optional.empty();
         if (currentTime > nextShot) {
             // dispara um novo tiro a partir da ponta do nave na direção Norte
             var bullet = new Projectile.Bullet(
@@ -57,16 +70,26 @@ public class Player implements Renderable {
         return Optional.empty();
     }
 
-
-    public void update() {
-        // Collision check and solver
-    }
-
 	@Override
 	public void render() {
+	    if (!isAlive) return;
     	GameLib.setColor(color);
 		GameLib.drawPlayer(position.getX(), position.getY(), radius);
 	}
 
 
+	@Override
+	public boolean intersects(Collidable other) {
+	    if (!isAlive) return false;
+		double dist = position.distance(other.getPosition());
+		return dist < (radius + other.getRadius()) * 0.8;
+	}
+
+
+	@Override
+	public void solve() {
+	    // TODO: find if collision is against enemy/projectile/powerup
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Unimplemented method 'solve'");
+	}
 }

@@ -3,7 +3,7 @@ package org.shootemup.components;
 import org.shootemup.GameLib;
 import org.shootemup.utils.Renderable;
 
-public class Explosion implements Renderable{
+public class Explosion {
     private Vector2D position;
     private long startTime;
     private long explosionDelta = 0;
@@ -23,9 +23,8 @@ public class Explosion implements Renderable{
         return explosionDelta > duration;
     }
 
-	@Override
 	public void render() {
-	    double alpha = (explosionDelta) / duration;
+	    double alpha = (double)explosionDelta / (double) duration;
 		GameLib.drawExplosion(position.getX(), position.getY(), alpha);
 	}
 }

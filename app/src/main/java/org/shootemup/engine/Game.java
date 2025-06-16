@@ -3,6 +3,9 @@ package org.shootemup.engine;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.shootemup.GameLib;
 import org.shootemup.components.Background;
@@ -16,6 +19,7 @@ import org.shootemup.utils.Direction;
 /// Classe que representa o sistema de jogo
 // Runnable indica que a classe é executavel e nunca retorna
 public class Game implements Runnable {
+    private ScheduledExecutorService scheduler;
     private long currentTime = System.currentTimeMillis();
     private long delta;
 
@@ -66,8 +70,39 @@ public class Game implements Runnable {
     private void update() {
 
         /* Colisões */
-        // TODO: checar colisoes
-        // TODO: resolver colisoes
+
+        // colisoes entre player e projeteis do tipo Ball
+        projectiles.stream()
+            .filter(proj -> proj instanceof Projectile.Ball)
+            .forEach(proj -> {
+                if (player.intersects(proj)) {
+                    player.die();
+                    scheduler.schedule(() -> player.revive(), 2000, TimeUnit.MILLISECONDS);
+                    explosions.add(new Explosion(player.getPosition(), currentTime, 2000));
+                }
+            });
+
+        // colisão entre player e enemy
+        enemies.forEach(enemy -> {
+           if (player.intersects(enemy)) {
+               player.die();
+               scheduler.schedule(() -> player.revive(), 2000, TimeUnit.MILLISECONDS);
+               explosions.add(new Explosion(player.getPosition(), currentTime, 2000));
+           }
+        });
+
+        // checa se cada inimigo colidiu com um projetil do player
+        projectiles.stream()
+            .filter(proj -> proj instanceof Projectile.Bullet)
+            .forEach(bullet -> {
+                enemies.removeIf(enemy -> {
+                    if (enemy.intersects(bullet)) {
+                        explosions.add(new Explosion(enemy.getPosition(), currentTime, 500));
+                        return true;
+                    }
+                    return false;
+                });
+            });
 
         /* Movimenta/ Atualiza entidades */
 
@@ -75,20 +110,20 @@ public class Game implements Runnable {
         nearStarBackground.animate(delta);
         farStarBackground.animate(delta);
 
-        // Atualiza delta das explosoes
-        explosions.forEach(expl -> expl.update(currentTime));
+        // Atualiza o estado das explosões e remove as que completaram
+        explosions.removeIf(expl -> {expl.update(currentTime); return expl.isFinished();});
 
         // Atualiza a posicao dos projeteis
-        projectiles.forEach(proj -> proj.move(delta));
         // Remove projéteis fora da tela
         projectiles.removeIf(proj -> {
+            proj.move(delta);
             Vector2D pos = proj.getPosition();
             return pos.getX() < 0 || pos.getX() > GameLib.WIDTH || pos.getY() < 0 || pos.getY() > GameLib.HEIGHT;
         });
 
         // Movimenta e remove inimigos fora da tela
-        enemies.forEach(e -> e.move(delta));
         enemies.removeIf(enemy -> {
+            enemy.move(delta);
             Vector2D pos = enemy.getPosition();
             return pos.getY() > GameLib.HEIGHT + 10;
         });
@@ -98,6 +133,7 @@ public class Game implements Runnable {
         );
 
         /* Spawnar inimigos */
+
         if (currentTime > nextCommonSpawn) {
             enemies.add(Enemy.forCommon(
                 new Vector2D(Math.random() * (GameLib.WIDTH - 20) + 10, -10.0)
@@ -127,25 +163,30 @@ public class Game implements Runnable {
 
     @Override
 	public void run() {
-	    // inicializa a biblioteca gráfica
-    	GameLib.initGraphics();
-        //GameLib.initGraphics_SAFE_MODE();  // chame esta versão do método caso nada seja desenhado na janela do jogo.
+	    try (ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1)) {
+			this.scheduler = scheduler;
+    	    // inicializa a biblioteca gráfica
+        	GameLib.initGraphics();
+            //GameLib.initGraphics_SAFE_MODE();  // chame esta versão do método caso nada seja desenhado na janela do jogo.
 
-        isRunning = true;
+            isRunning = true;
 
-        while (isRunning) {
-            delta = System.currentTimeMillis() - currentTime;
-            currentTime = System.currentTimeMillis();
+            while (isRunning) {
+                delta = System.currentTimeMillis() - currentTime;
+                currentTime = System.currentTimeMillis();
 
-            update();
-            read_input();
-            render();
+                update();
+                read_input();
+                render();
 
-            // Deixa a thread em _idle_ para normalizar o frame rate
-            busyWait(currentTime + 3);
-        }
-
-	    System.exit(0);
+                // Deixa a thread em _idle_ para normalizar o frame rate
+                busyWait(currentTime + 3);
+            }
+    	    System.exit(0);
+		} catch (Exception e) {
+            System.out.println("Alguma coisa deu errado: " + e);
+            System.exit(1);
+		}
 	}
 
 	/// Mantem a thread em estado de espera

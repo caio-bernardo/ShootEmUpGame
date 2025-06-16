@@ -4,20 +4,16 @@ import java.awt.Color;
 
 import org.shootemup.GameLib;
 import org.shootemup.components.Vector2D;
+import org.shootemup.utils.Collidable;
 import org.shootemup.utils.Renderable;
 
-public abstract class Projectile implements Renderable {
-    protected Vector2D position;
-    protected Vector2D velocity;
-    protected Color color;
+public abstract class Projectile extends Entity {
 
     protected Projectile(Vector2D position, Vector2D velocity, Color color) {
         this.position = position;
         this.velocity = velocity;
         this.color = color;
     }
-
-    public abstract void move(long dt);
 
     public Vector2D getPosition() {
         return position;
@@ -30,12 +26,6 @@ public abstract class Projectile implements Renderable {
             super(position, velocity, Color.GREEN);
         }
 
-        @Override
-        public void move(long dt) {
-            position = position.addVector(velocity.multiplyScalar(dt));
-        }
-
-
   		@Override
   		public void render() {
             GameLib.setColor(color);
@@ -43,6 +33,18 @@ public abstract class Projectile implements Renderable {
             GameLib.drawLine(position.getX() - 1, position.getY() - 3, position.getX() - 1, position.getY() + 3);
             GameLib.drawLine(position.getX() + 1, position.getY() - 3, position.getX() + 1, position.getY() + 3);
   		}
+
+		@Override
+		public boolean intersects(Collidable other) {
+			// TODO Auto-generated method stub
+			throw new UnsupportedOperationException("Unimplemented method 'intersects'");
+		}
+
+		@Override
+		public void solve() {
+			// TODO Auto-generated method stub
+			throw new UnsupportedOperationException("Unimplemented method 'solve'");
+		}
 
     }
 
@@ -61,8 +63,15 @@ public abstract class Projectile implements Renderable {
 		}
 
 		@Override
-		public void move(long dt) {
-		    position = position.addVector(velocity.multiplyScalar(dt));
+		public boolean intersects(Collidable other) {
+			// TODO Auto-generated method stub
+			throw new UnsupportedOperationException("Unimplemented method 'intersects'");
+		}
+
+		@Override
+		public void solve() {
+			// TODO Auto-generated method stub
+			throw new UnsupportedOperationException("Unimplemented method 'solve'");
 		}
 
     }
