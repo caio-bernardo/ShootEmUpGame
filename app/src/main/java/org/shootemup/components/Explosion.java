@@ -1,7 +1,6 @@
 package org.shootemup.components;
 
 import org.shootemup.GameLib;
-import org.shootemup.utils.Renderable;
 
 public class Explosion {
     private Vector2D position;

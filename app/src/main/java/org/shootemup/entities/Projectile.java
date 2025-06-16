@@ -5,7 +5,6 @@ import java.awt.Color;
 import org.shootemup.GameLib;
 import org.shootemup.components.Vector2D;
 import org.shootemup.utils.Collidable;
-import org.shootemup.utils.Renderable;
 
 public abstract class Projectile extends Entity {
 

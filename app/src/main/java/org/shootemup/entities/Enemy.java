@@ -6,7 +6,6 @@ import java.util.Optional;
 import org.shootemup.GameLib;
 import org.shootemup.components.Vector2D;
 import org.shootemup.utils.Collidable;
-import org.shootemup.utils.Renderable;
 
 public class Enemy extends Entity {
     private double rotationSpeed;
