@@ -5,24 +5,21 @@ import java.util.Optional;
 
 import org.shootemup.GameLib;
 import org.shootemup.components.Vector2D;
+import org.shootemup.components.Weapon;
 import org.shootemup.utils.Collidable;
 import org.shootemup.utils.Direction;
+import org.shootemup.utils.Shooter;
 
 
-public class Player extends Entity {
+public class Player extends Entity implements Shooter {
     private boolean isAlive = true;
-    private long nextShot = 0;
-    private long reckoil = 100;
     private long reviveAt = 0;
+    private Weapon<? extends Projectile> gun;
 
     public Player(Vector2D pos, double radius, Vector2D velocity) {
-        position = pos;
-        this.radius = radius;
-        this.velocity = velocity;
-        color = Color.BLUE;
+        super(pos, velocity, radius, Color.BLUE);
+        gun = Weapon.Pistol();
     }
-
-
 
     public void move(long dt, Direction dir) {
         if (!isAlive) return;
@@ -50,29 +47,20 @@ public class Player extends Entity {
         reviveAt = now + durationMilis;
     }
 
-    public void die() {
-        isAlive = false;
-    }
-
     public void revive(long now) {
         if (now > reviveAt) {
             isAlive = true;
         }
     }
 
-
-    public Optional<Projectile.Bullet> shot(long currentTime) {
+    @Override
+    public Optional<Projectile> shot(long currentTime) {
         if (!isAlive) return Optional.empty();
-        if (currentTime > nextShot) {
-            // dispara um novo tiro a partir da ponta do nave na direção Norte
-            var bullet = new Projectile.Bullet(
-                new Vector2D(position.getX(), position.getY() - 2 * radius),
-                new Vector2D(0.0, -1.0)
-            );
-            nextShot = currentTime + reckoil;
-            return Optional.of(bullet);
-        }
-        return Optional.empty();
+        return gun.fire(
+            currentTime,
+            new Vector2D(position.x, position.y - 2 * radius),
+            new Vector2D(0.0, -1.0)
+        ).map(b -> (Projectile)b);
     }
 
 	@Override
@@ -90,11 +78,4 @@ public class Player extends Entity {
 		return dist < (radius + other.getRadius()) * 0.8;
 	}
 
-
-	@Override
-	public void solve() {
-	    // TODO: find if collision is against enemy/projectile/powerup
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'solve'");
-	}
 }
