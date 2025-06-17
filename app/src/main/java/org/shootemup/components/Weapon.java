@@ -37,7 +37,7 @@ public class Weapon<T extends Projectile> {
         return nextShot;
     }
 
-    public void setNexShot(long nextShotMilis) {
+    public void setNextShot(long nextShotMilis) {
         nextShot = nextShotMilis;
     }
 
