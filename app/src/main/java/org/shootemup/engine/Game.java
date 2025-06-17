@@ -26,9 +26,9 @@ public class Game implements Runnable {
 
     private List<Projectile> projectiles;
     private List<Enemy> enemies;
-    private long nextCommonSpawn = currentTime + 2000;
-
     private List<Explosion> explosions;
+
+    private long nextCommonSpawn = currentTime + 2000;
 
     private Player player;
 
@@ -157,7 +157,7 @@ public class Game implements Runnable {
         GameLib.display();
     }
 
-    @Override
+    // Executa o jogo
 	public void run() {
    	    // inicializa a biblioteca gráfica
        	GameLib.initGraphics();
