@@ -18,18 +18,18 @@ public abstract class Enemy extends Entity implements Shooter {
            this.rotationSpeed = rotationSpeed;
     }
 
+    @Override
+	public void render() {
+            GameLib.setColor(color);
+            GameLib.drawCircle(position.getX(), position.getY(), radius);
+	}
+
     public static class Common extends Enemy {
 
         public Common(Vector2D pos) {
            super(Color.CYAN, pos, 9.0, new Vector2D(0.0, 0.20 + Math.random() * 0.15), 0.0);
            gun = Weapon.Cannon();
         }
-
-		@Override
-		public void render() {
-            GameLib.setColor(color);
-            GameLib.drawCircle(position.getX(), position.getY(), radius);
-		}
 
 		@Override
 		public Optional<Projectile> shot(long currentTime) {
