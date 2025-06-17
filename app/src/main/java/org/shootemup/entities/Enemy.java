@@ -44,13 +44,13 @@ public abstract class Enemy extends Entity implements Shooter {
     }
 
     public static class Advanced extends Enemy {
-        private double angle; // Current angle (direction of movement)
+        private double angle;
         private boolean canShoot = false;
         private long nextShootTime = 0;
 
         public Advanced(Vector2D pos, boolean spawnOnRight) {
             super(Color.MAGENTA, pos, 12.0, new Vector2D(0.42, 0.42), 0.0);
-            this.angle = (3 * Math.PI) / 2; // Start moving downward
+            this.angle = (3 * Math.PI) / 2;
             this.rotationSpeed = 0.0;
             gun = Weapon.TripleCannon();
         }
@@ -65,17 +65,13 @@ public abstract class Enemy extends Entity implements Shooter {
         public void move(long dt) {
             double prevY = position.getY();
 
-            // Move according to current angle
             position.x += velocity.getX() * Math.cos(angle) * dt;
-            position.y -= velocity.getY() * Math.sin(angle) * dt; // Note the negative sign for Y direction
+            position.y -= velocity.getY() * Math.sin(angle) * dt;
 
-            // Update angle based on rotation speed
             angle += rotationSpeed * dt;
 
-            // Implement special movement pattern
             double threshold = GameLib.HEIGHT * 0.30;
 
-            // When crossing the threshold from top to bottom, start rotation
             if (prevY < threshold && position.getY() >= threshold) {
                 if (position.getX() < GameLib.WIDTH / 2) {
                     rotationSpeed = 0.003;
@@ -84,7 +80,6 @@ public abstract class Enemy extends Entity implements Shooter {
                 }
             }
 
-            // When rotation brings us to specific angles, stop and shoot
             if (rotationSpeed > 0 && Math.abs(angle - 3 * Math.PI) < 0.05) {
                 rotationSpeed = 0.0;
                 angle = 3 * Math.PI;
@@ -98,7 +93,6 @@ public abstract class Enemy extends Entity implements Shooter {
 
         @Override
         public Optional<Projectile> shot(long currentTime) {
-            // Standard shot method returns empty as we use the multi-shot method
             return Optional.empty();
         }
 
@@ -110,23 +104,18 @@ public abstract class Enemy extends Entity implements Shooter {
                 return projectiles;
             }
 
-            // Reset shooting flag and set next shoot time
             canShoot = false;
             nextShootTime = currentTime + 1000; // Prevent continuous shooting
 
-            // Create three projectiles at different angles
             double[] angles = { Math.PI/2 + Math.PI/8, Math.PI/2, Math.PI/2 - Math.PI/8 };
 
             for (double shotAngle : angles) {
-                // Add some randomness to the angle
                 double finalAngle = shotAngle + Math.random() * Math.PI/6 - Math.PI/12;
                 double vx = Math.cos(finalAngle) * 0.30;
                 double vy = Math.sin(finalAngle) * 0.30;
 
-                // Create projectile with the calculated velocity vector
                 Vector2D velocity = new Vector2D(vx, vy);
 
-                // Create a Ball projectile (red bullets)
                 Projectile ball = new Projectile.Ball(position, velocity);
                 projectiles.add(ball);
             }
