@@ -14,8 +14,7 @@ import org.shootemup.entities.Projectile;
 import org.shootemup.utils.Direction;
 
 /// Classe que representa o sistema de jogo
-// Runnable indica que a classe é executavel e nunca retorna
-public class Game implements Runnable {
+public class Game {
     private long currentTime = System.currentTimeMillis();
     private long delta;
 
@@ -128,13 +127,12 @@ public class Game implements Runnable {
         });
         // Inimigos fazem uma tentativa de tiro
         enemies.forEach(e -> {
-            if (e instanceof Enemy.Advanced) {
-                // Handle special case for Advanced enemies with multiple shots
-                Enemy.Advanced advancedEnemy = (Enemy.Advanced) e;
+            // Se inimigo for do tipo flyer atira com multiShot
+            if (e instanceof Enemy.Flyer) {
+                Enemy.Flyer advancedEnemy = (Enemy.Flyer) e;
                 List<Projectile> multiShot = advancedEnemy.shotMultiple(currentTime);
                 projectiles.addAll(multiShot);
             } else {
-                // Regular shots from common enemies
                 e.shot(currentTime).ifPresent(bullet -> projectiles.add(bullet));
             }
         });
@@ -147,23 +145,21 @@ public class Game implements Runnable {
             ));
             nextCommonSpawn = currentTime + 500;
         }
-        
+
         /* Spawnar inimigos avançados (tipo 2) */
-        
+
         if (currentTime > nextAdvancedSpawn) {
             boolean spawnOnRight = advancedSpawnX > GameLib.WIDTH / 2;
-            enemies.add(new Enemy.Advanced(
+            enemies.add(new Enemy.Flyer(
                 new Vector2D(advancedSpawnX, -10.0),
                 spawnOnRight
             ));
-            
+
             advancedFormationCount++;
-            
+
             if (advancedFormationCount < 10) {
-                // Continue formation with short delay
                 nextAdvancedSpawn = currentTime + 120;
             } else {
-                // End formation, reset counter and prepare next formation
                 advancedFormationCount = 0;
                 advancedSpawnX = Math.random() > 0.5 ? GameLib.WIDTH * 0.2 : GameLib.WIDTH * 0.8;
                 nextAdvancedSpawn = currentTime + 3000 + (long)(Math.random() * 3000);

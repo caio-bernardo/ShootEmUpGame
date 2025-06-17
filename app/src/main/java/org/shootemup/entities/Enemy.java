@@ -43,12 +43,13 @@ public abstract class Enemy extends Entity implements Shooter {
 		}
     }
 
-    public static class Advanced extends Enemy {
+    /// Inimigo Flyers (voadores), andam em formação e giram
+    public static class Flyer extends Enemy {
         private double angle;
         private boolean canShoot = false;
         private long nextShootTime = 0;
 
-        public Advanced(Vector2D pos, boolean spawnOnRight) {
+        public Flyer(Vector2D pos, boolean spawnOnRight) {
             super(Color.MAGENTA, pos, 12.0, new Vector2D(0.42, 0.42), 0.0);
             this.angle = (3 * Math.PI) / 2;
             this.rotationSpeed = 0.0;
@@ -96,7 +97,7 @@ public abstract class Enemy extends Entity implements Shooter {
             return Optional.empty();
         }
 
-        // Method to get multiple projectiles at once
+        // Dispara multiplos tiros
         public List<Projectile> shotMultiple(long currentTime) {
             List<Projectile> projectiles = new ArrayList<>();
 
@@ -105,7 +106,7 @@ public abstract class Enemy extends Entity implements Shooter {
             }
 
             canShoot = false;
-            nextShootTime = currentTime + 1000; // Prevent continuous shooting
+            nextShootTime = currentTime + 1000;
 
             double[] angles = { Math.PI/2 + Math.PI/8, Math.PI/2, Math.PI/2 - Math.PI/8 };
 
