@@ -3,7 +3,6 @@ package org.shootemup.engine;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ScheduledExecutorService;
 
 import org.shootemup.GameLib;
 import org.shootemup.components.Background;
@@ -75,7 +74,6 @@ public class Game implements Runnable {
             .filter(proj -> proj instanceof Projectile.Ball)
             .forEach(proj -> {
                 if (player.intersects(proj)) {
-                    player.die();
                     player.dieForDuration(currentTime, 2000);
                     explosions.add(new Explosion(player.getPosition(), currentTime, 2000));
                 }
@@ -84,7 +82,6 @@ public class Game implements Runnable {
         // colisão entre player e enemy
         enemies.forEach(enemy -> {
            if (player.intersects(enemy)) {
-               player.die();
                player.dieForDuration(currentTime, 2000);
                explosions.add(new Explosion(player.getPosition(), currentTime, 2000));
            }
@@ -134,7 +131,7 @@ public class Game implements Runnable {
         /* Spawnar inimigos */
 
         if (currentTime > nextCommonSpawn) {
-            enemies.add(Enemy.forCommon(
+            enemies.add(new Enemy.Common(
                 new Vector2D(Math.random() * (GameLib.WIDTH - 20) + 10, -10.0)
             ));
             nextCommonSpawn = currentTime + 500;

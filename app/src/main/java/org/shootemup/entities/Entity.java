@@ -13,9 +13,22 @@ public abstract class Entity implements Renderable, Movable, Collidable {
     protected double radius;
     protected Color color;
 
+    public Entity(Vector2D pos, Vector2D velocity, double radius, Color color) {
+        this.position = pos;
+        this.velocity = velocity;
+        this.radius = radius;
+        this.color = color;
+    }
+
     @Override
     public void move(long dt) {
         position = position.addVector(velocity.multiplyScalar(dt));
+    }
+
+    @Override
+    public boolean intersects(Collidable other) {
+        double dist = position.distance(other.getPosition());
+        return dist < radius + other.getRadius();
     }
 
     @Override
