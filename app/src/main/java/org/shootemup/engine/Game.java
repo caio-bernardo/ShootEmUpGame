@@ -29,6 +29,9 @@ public class Game implements Runnable {
     private List<Explosion> explosions;
 
     private long nextCommonSpawn = currentTime + 2000;
+    private long nextAdvancedSpawn = currentTime + 7000;
+    private double advancedSpawnX = GameLib.WIDTH * 0.20;
+    private int advancedFormationCount = 0;
 
     private Player player;
 
@@ -43,8 +46,8 @@ public class Game implements Runnable {
             Vector2D.ofScalar(0.25)
         );
 
-        projectiles = new ArrayList<>(200);
-        enemies = new ArrayList<>(10);
+        projectiles = new ArrayList<>(200); // Increased capacity for multiple projectiles
+        enemies = new ArrayList<>(20);      // Increased capacity for multiple enemy types
         explosions = new ArrayList<>(15);
     }
 
@@ -124,9 +127,17 @@ public class Game implements Runnable {
             return pos.getY() > GameLib.HEIGHT + 10;
         });
         // Inimigos fazem uma tentativa de tiro
-        enemies.forEach(e -> e.shot(currentTime)
-            .ifPresent(bullet -> projectiles.add(bullet))
-        );
+        enemies.forEach(e -> {
+            if (e instanceof Enemy.Advanced) {
+                // Handle special case for Advanced enemies with multiple shots
+                Enemy.Advanced advancedEnemy = (Enemy.Advanced) e;
+                List<Projectile> multiShot = advancedEnemy.shotMultiple(currentTime);
+                projectiles.addAll(multiShot);
+            } else {
+                // Regular shots from common enemies
+                e.shot(currentTime).ifPresent(bullet -> projectiles.add(bullet));
+            }
+        });
 
         /* Spawnar inimigos */
 
@@ -135,6 +146,28 @@ public class Game implements Runnable {
                 new Vector2D(Math.random() * (GameLib.WIDTH - 20) + 10, -10.0)
             ));
             nextCommonSpawn = currentTime + 500;
+        }
+        
+        /* Spawnar inimigos avançados (tipo 2) */
+        
+        if (currentTime > nextAdvancedSpawn) {
+            boolean spawnOnRight = advancedSpawnX > GameLib.WIDTH / 2;
+            enemies.add(new Enemy.Advanced(
+                new Vector2D(advancedSpawnX, -10.0),
+                spawnOnRight
+            ));
+            
+            advancedFormationCount++;
+            
+            if (advancedFormationCount < 10) {
+                // Continue formation with short delay
+                nextAdvancedSpawn = currentTime + 120;
+            } else {
+                // End formation, reset counter and prepare next formation
+                advancedFormationCount = 0;
+                advancedSpawnX = Math.random() > 0.5 ? GameLib.WIDTH * 0.2 : GameLib.WIDTH * 0.8;
+                nextAdvancedSpawn = currentTime + 3000 + (long)(Math.random() * 3000);
+            }
         }
     }
 

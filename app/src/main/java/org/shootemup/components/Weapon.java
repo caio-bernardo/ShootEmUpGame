@@ -23,6 +23,9 @@ public class Weapon<T extends Projectile> {
         return new Weapon<>(500, Projectile.Ball::new);
     }
 
+    public static Weapon<Projectile.Ball> TripleCannon() {
+        return new Weapon<>(300, Projectile.Ball::new);
+    }
 
     public Optional<T> fire(long currentTime, Vector2D pos, Vector2D velocity) {
         if (currentTime > nextShot) {
