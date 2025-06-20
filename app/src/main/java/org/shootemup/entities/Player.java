@@ -17,7 +17,7 @@ public class Player extends Entity implements Shooter {
     private long reviveAt = 0;
     private Weapon<? extends Projectile> gun;
     private long zaWarudoTimer = 0;
-    private long missileModeTimer = 0;
+    private long laserModeTimer = 0;
 
     public Player(Vector2D pos, double radius, Vector2D velocity) {
         super(pos, velocity, radius, Color.BLUE);
@@ -59,8 +59,8 @@ public class Player extends Entity implements Shooter {
     public void pickPowerUp(Powerup powerup) {
         if (powerup instanceof Powerup.ZaWarudo) {
             zaWarudoTimer = Powerup.ZaWarudo.duration;
-        } else if (powerup instanceof Powerup.MissileMode) {
-            missileModeTimer = Powerup.MissileMode.duration;
+        } else if (powerup instanceof Powerup.LaserMode) {
+            laserModeTimer = Powerup.LaserMode.duration;
         }
     }
 
@@ -68,13 +68,13 @@ public class Player extends Entity implements Shooter {
         return zaWarudoTimer > 0;
     }
 
-    public boolean isMissileModeActive() {
-        return missileModeTimer > 0;
+    public boolean isLaserModeActive() {
+        return laserModeTimer > 0;
     }
 
     public void updatePowerUpTimers(long dt) {
         zaWarudoTimer = zaWarudoTimer - dt < 0 ? 0 : zaWarudoTimer - dt;
-        missileModeTimer = missileModeTimer - dt < 0 ? 0 : missileModeTimer - dt;
+        laserModeTimer = laserModeTimer - dt < 0 ? 0 : laserModeTimer - dt;
     }
 
     @Override

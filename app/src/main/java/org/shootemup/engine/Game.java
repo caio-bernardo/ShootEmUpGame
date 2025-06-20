@@ -211,17 +211,11 @@ public class Game {
                 if(currentTime % 2 == 0) {
                     powerups.add(new Powerup.ZaWarudo(new Vector2D(Math.random() * (GameLib.WIDTH - 20) + 10, -10.0)));
                 } else {
-                    powerups.add(new Powerup.MissileMode(new Vector2D(Math.random() * (GameLib.WIDTH - 20) + 10, -10.0)));
+                    powerups.add(new Powerup.LaserMode(new Vector2D(Math.random() * (GameLib.WIDTH - 20) + 10, -10.0)));
                 }
                 nextPowerupSpawn = currentTime + 2000 + (long)(Math.random() * 43000); 
             }
         }
-
-
-
-
-
-
     }
 
     private void render() {

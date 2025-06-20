@@ -17,17 +17,17 @@ public abstract class Powerup extends Entity {
     }
 
     public static class ZaWarudo extends Powerup {
-        public final static long duration = 6000;
+        public final static long duration = 4000;
 
         public ZaWarudo(Vector2D pos) {
            super(Color.YELLOW, pos, 8.0, new Vector2D(0.0, 0.08 + Math.random() * 0.07));
         }
     }
 
-    public static class MissileMode extends Powerup {
+    public static class LaserMode extends Powerup {
         public final static long duration = 12000;
 
-        public MissileMode(Vector2D pos) {
+        public LaserMode(Vector2D pos) {
             super(Color.ORANGE, pos, 8.0, new Vector2D(0.0, 0.08 + Math.random() * 0.07));
         }
     }
