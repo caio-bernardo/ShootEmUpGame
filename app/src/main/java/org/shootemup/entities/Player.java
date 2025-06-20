@@ -9,12 +9,15 @@ import org.shootemup.components.Weapon;
 import org.shootemup.utils.Collidable;
 import org.shootemup.utils.Direction;
 import org.shootemup.utils.Shooter;
+import org.shootemup.entities.Powerup;
 
 
 public class Player extends Entity implements Shooter {
     private boolean isAlive = true;
     private long reviveAt = 0;
     private Weapon<? extends Projectile> gun;
+    private long zaWarudoTimer = 0;
+    private long missileModeTimer = 0;
 
     public Player(Vector2D pos, double radius, Vector2D velocity) {
         super(pos, velocity, radius, Color.BLUE);
@@ -51,6 +54,27 @@ public class Player extends Entity implements Shooter {
         if (now > reviveAt) {
             isAlive = true;
         }
+    }
+
+    public void pickPowerUp(Powerup powerup) {
+        if (powerup instanceof Powerup.ZaWarudo) {
+            zaWarudoTimer = Powerup.ZaWarudo.duration;
+        } else if (powerup instanceof Powerup.MissileMode) {
+            missileModeTimer = Powerup.MissileMode.duration;
+        }
+    }
+
+    public boolean isZaWarudoActive() {
+        return zaWarudoTimer > 0;
+    }
+
+    public boolean isMissileModeActive() {
+        return missileModeTimer > 0;
+    }
+
+    public void updatePowerUpTimers(long dt) {
+        zaWarudoTimer = zaWarudoTimer - dt < 0 ? 0 : zaWarudoTimer - dt;
+        missileModeTimer = missileModeTimer - dt < 0 ? 0 : missileModeTimer - dt;
     }
 
     @Override
