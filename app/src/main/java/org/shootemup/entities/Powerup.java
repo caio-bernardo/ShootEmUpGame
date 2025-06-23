@@ -25,7 +25,7 @@ public abstract class Powerup extends Entity {
     }
 
     public static class LaserMode extends Powerup {
-        public final static long duration = 12000;
+        public final static long duration = 8000;
 
         public LaserMode(Vector2D pos) {
             super(Color.ORANGE, pos, 8.0, new Vector2D(0.0, 0.08 + Math.random() * 0.07));
