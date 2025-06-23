@@ -32,10 +32,17 @@ public class Game {
     private long nextPowerupSpawn = currentTime + 15000;
     private long nextCommonSpawn = currentTime + 2000;
     private long nextAdvancedSpawn = currentTime + 7000;
+    private long nextBossSpawn = currentTime + 5000;
     private double advancedSpawnX = GameLib.WIDTH * 0.20;
     private int advancedFormationCount = 0;
 
     private Player player;
+
+    /*Duas flags, uma para cada boss*/
+    /*A ideia é que, no decorrer da execução, a segunda dependa da primeira
+    *(Afinal, o segundo boss só vai aparecer depois do primeiro)*/
+    private boolean firstBossNotSpawn = true;
+    private boolean secondBossNotSpawn = true;
 
 
     public Game() {
@@ -102,8 +109,15 @@ public class Game {
             .forEach(bullet -> {
                 enemies.removeIf(enemy -> {
                     if (enemy.intersects(bullet)) {
+                        /*Precisamos, agora, fazer uma alteração na vida dos inimigos. Isso
+                        é mais relevante quando estamos falando de algum boss. Primeiro, subtraímos
+                        e depois vemos se a vida do inimigo zerou*/
+                        int momentLife = enemy.getLife();
+                        enemy.setLife(--momentLife);
                         explosions.add(new Explosion(enemy.getPosition(), currentTime, 500));
-                        return true;
+                        if(enemy.getLife() == 0){
+                            return true;
+                        }
                     }
                     return false;
                 });
@@ -149,14 +163,14 @@ public class Game {
                 }
                 return false;
             });
-            
+
             // Movimenta e remove inimigos fora da tela
             enemies.removeIf(enemy -> {
                 enemy.move(delta);
                 Vector2D pos = enemy.getPosition();
                 return pos.getY() > GameLib.HEIGHT + 10;
             });
-            
+
             // Inimigos fazem uma tentativa de tiro
             enemies.forEach(e -> {
                 // Se inimigo for do tipo flyer atira com multiShot
@@ -168,14 +182,14 @@ public class Game {
                     e.shot(currentTime).ifPresent(bullet -> projectiles.add(bullet));
                 }
             });
-            
+
             // Movimenta e remove power ups fora da tela
             powerups.removeIf(pow -> {
                 pow.move(delta);
                 Vector2D pos = pow.getPosition();
                 return pos.getY() > GameLib.HEIGHT + 10;
             });
-            
+
             /* Spawnar inimigos */
 
             if (currentTime > nextCommonSpawn) {
@@ -204,7 +218,16 @@ public class Game {
                     nextAdvancedSpawn = currentTime + 3000 + (long)(Math.random() * 3000);
                 }
             }
-            
+
+            /* Spawnar primeiro boss */
+            if((currentTime > nextBossSpawn) && firstBossNotSpawn == true){
+                enemies.add(new Enemy.FirstBoss(
+                    new Vector2D( (GameLib.WIDTH)/2 , -10.0),
+                    700
+                ));
+                firstBossNotSpawn = false;
+            }
+
             /* Spawnar power ups */
 
             if(currentTime > nextPowerupSpawn) {
@@ -213,7 +236,7 @@ public class Game {
                 } else {
                     powerups.add(new Powerup.LaserMode(new Vector2D(Math.random() * (GameLib.WIDTH - 20) + 10, -10.0)));
                 }
-                nextPowerupSpawn = currentTime + 2000 + (long)(Math.random() * 43000); 
+                nextPowerupSpawn = currentTime + 2000 + (long)(Math.random() * 43000);
             }
         }
     }

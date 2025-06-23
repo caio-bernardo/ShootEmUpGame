@@ -5,19 +5,33 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import javax.annotation.OverridingMethodsMustInvokeSuper;
+
 import org.shootemup.GameLib;
 import org.shootemup.components.Vector2D;
 import org.shootemup.components.Weapon;
+import org.shootemup.components.LifeBar;
+import org.shootemup.engine.Game;
 import org.shootemup.utils.Shooter;
 
 
 public abstract class Enemy extends Entity implements Shooter {
     protected double rotationSpeed;
     protected Weapon<? extends Projectile> gun;
+    protected int life;
 
-    protected Enemy(Color color, Vector2D pos, double radius, Vector2D velocity, double rotationSpeed) {
+    protected Enemy(Color color, Vector2D pos, double radius, Vector2D velocity, double rotationSpeed, int life) {
            super(pos, velocity, radius, color);
            this.rotationSpeed = rotationSpeed;
+           this.life = life;
+    }
+
+    public void setLife(int newLife){
+        this.life = newLife;
+    }
+
+    public int getLife(){
+        return this.life;
     }
 
     @Override
@@ -29,7 +43,7 @@ public abstract class Enemy extends Entity implements Shooter {
     public static class Common extends Enemy {
 
         public Common(Vector2D pos) {
-           super(Color.CYAN, pos, 9.0, new Vector2D(0.0, 0.20 + Math.random() * 0.15), 0.0);
+           super(Color.CYAN, pos, 9.0, new Vector2D(0.0, 0.20 + Math.random() * 0.15), 0.0, 1);
            gun = Weapon.Cannon();
         }
 
@@ -50,7 +64,7 @@ public abstract class Enemy extends Entity implements Shooter {
         private long nextShootTime = 0;
 
         public Flyer(Vector2D pos, boolean spawnOnRight) {
-            super(Color.MAGENTA, pos, 12.0, new Vector2D(0.42, 0.42), 0.0);
+            super(Color.MAGENTA, pos, 12.0, new Vector2D(0.42, 0.42), 1.0, 1);
             this.angle = (3 * Math.PI) / 2;
             this.rotationSpeed = 0.0;
             gun = Weapon.TripleCannon();
@@ -124,4 +138,64 @@ public abstract class Enemy extends Entity implements Shooter {
             return projectiles;
         }
     }
+
+    public static class FirstBoss extends Enemy{
+
+        private double angle;
+        protected LifeBar bossLife;
+
+
+        public FirstBoss(Vector2D pos, int life) {
+           super(Color.RED, pos, 30.0, new Vector2D(0.05, 0.05), 1.0, life);
+           gun = Weapon.Cannon();
+           this.angle = (3 * Math.PI) / 2;
+           this.rotationSpeed = 0.0;
+           bossLife = new LifeBar(Color.RED, life);
+        }
+
+
+        @Override
+		public Optional<Projectile> shot(long currentTime) {
+		    var bullet = gun.fire(currentTime, position, new Vector2D(0.0, 0.45));
+			if (bullet.isPresent()) {
+			    gun.setNextShot((long)(currentTime + 15 + Math.random() * gun.getReckoilMilis()));
+			}
+                  return bullet.map(b-> (Projectile)b);
+		}
+
+        @Override
+        public void move(long dt) {
+            double prevY = position.getY();
+
+            position.x += 4 * (velocity.getX() * Math.cos(angle) * dt);
+            position.y -= 4 * (velocity.getY() * Math.sin(angle) * dt);
+
+            angle += rotationSpeed * dt;
+
+            double threshold = GameLib.HEIGHT * 0.30;
+
+            if(prevY < threshold && position.getY() >= threshold){
+
+                if(position.getX() < GameLib.WIDTH / 2){
+                    rotationSpeed = 0.003;
+                }
+                if(position.getX() >= GameLib.WIDTH / 2){
+                    rotationSpeed = -0.003;
+                }
+            }
+        }
+
+		@Override
+        public void render() {
+            GameLib.setColor(color);
+            GameLib.drawLine(position.getX() - radius, position.getY() - radius, position.getX(), position.getY() + radius);
+            GameLib.drawLine(position.getX() + radius, position.getY() - radius, position.getX(), position.getY() + radius);
+            GameLib.drawLine(position.getX() - radius, position.getY() - radius, position.getX(), position.getY() - radius * 0.5);
+            GameLib.drawLine(position.getX() + radius, position.getY() - radius, position.getX(), position.getY() - radius * 0.5);
+
+            bossLife.setFinalLife(this.getLife());
+            bossLife.render();
+        }
+    }
+
 }
