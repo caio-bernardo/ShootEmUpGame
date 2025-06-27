@@ -67,11 +67,15 @@ public class Player extends Entity implements Shooter {
     }
 
     public boolean isZaWarudoActive() {
-        return zaWarudoTimer > 0;
+        boolean result = zaWarudoTimer > 0;
+        if(result) Powerup.ZaWarudo.renderEffect(position, zaWarudoTimer);
+        return result;
     }
 
     public boolean isLaserModeActive() {
-        return laserModeTimer > 0;
+        boolean result = laserModeTimer > 0;
+        if(result) Powerup.LaserMode.renderEffect(position, laserModeTimer);
+        return result;
     }
 
     public void updatePowerUpTimers(long dt) {
