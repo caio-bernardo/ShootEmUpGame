@@ -29,7 +29,7 @@ public class Game {
     private List<Explosion> explosions;
     private List<Powerup> powerups;
 
-    private long nextPowerupSpawn = currentTime + 15000;
+    private long nextPowerupSpawn = currentTime + 7500;
     private long nextCommonSpawn = currentTime + 2000;
     private long nextAdvancedSpawn = currentTime + 7000;
     private long nextBossSpawn = currentTime + 5000;
@@ -109,7 +109,7 @@ public class Game {
 
         // checa se cada inimigo colidiu com um projetil do player
         projectiles.stream()
-            .filter(proj -> proj instanceof Projectile.Bullet)
+            .filter(proj -> proj instanceof Projectile.Bullet || proj instanceof Projectile.Laser)
             .forEach(bullet -> {
                 enemies.removeIf(enemy -> {
                     if (enemy.intersects(bullet)) {
@@ -143,7 +143,7 @@ public class Game {
         // Atualiza a posicao das balas do jogador
         // e remove se fora da tela
         projectiles.removeIf(proj -> {
-            if(proj instanceof Projectile.Bullet) {
+            if(proj instanceof Projectile.Bullet || proj instanceof Projectile.Laser) {
                 proj.move(delta);
                 Vector2D pos = proj.getPosition();
                 return pos.getX() < 0 || pos.getX() > GameLib.WIDTH || pos.getY() < 0 || pos.getY() > GameLib.HEIGHT;
@@ -255,12 +255,12 @@ public class Game {
             /* Spawnar power ups */
 
             if(currentTime > nextPowerupSpawn) {
-                if(currentTime % 2 == 0) {
+                if(Math.random() * 2 < 1) {
                     powerups.add(new Powerup.ZaWarudo(new Vector2D(Math.random() * (GameLib.WIDTH - 20) + 10, -10.0)));
                 } else {
                     powerups.add(new Powerup.LaserMode(new Vector2D(Math.random() * (GameLib.WIDTH - 20) + 10, -10.0)));
                 }
-                nextPowerupSpawn = currentTime + 2000 + (long)(Math.random() * 43000);
+                nextPowerupSpawn = currentTime + 2000 + (long)(Math.random() * 13000);
             }
         }
     }

@@ -28,6 +28,21 @@ public abstract class Projectile extends Entity {
 
     }
 
+    /// Representa um projétil em formato de laser
+    public static class Laser extends Projectile {
+
+        public Laser(Vector2D position, Vector2D velocity) {
+            super(position, velocity, Color.RED);
+        }
+
+        @Override
+        public void render() {
+            GameLib.setColor(color);
+            GameLib.drawLine(position.getX(), position.getY() - 20, position.getX() - 1, position.getY() + 20);
+        }
+
+    }
+
     /// Representa um projétil em formato esférico
     public static class Ball extends Projectile {
 
