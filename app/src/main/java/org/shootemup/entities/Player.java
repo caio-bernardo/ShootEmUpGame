@@ -18,6 +18,7 @@ public class Player extends Entity implements Shooter {
     private Weapon<? extends Projectile> gun;
     private long zaWarudoTimer = 0;
     private long laserModeTimer = 0;
+    private int zaWarudoRadius = 0;
 
     public Player(Vector2D pos, double radius, Vector2D velocity) {
         super(pos, velocity, radius, Color.BLUE);
@@ -64,7 +65,19 @@ public class Player extends Entity implements Shooter {
         }
     }
 
-    public boolean isZaWarudoActive() {
+    public boolean isZaWarudoActive()
+    {
+        if(zaWarudoTimer > 0){
+            if(zaWarudoTimer % 2 == 1){
+                GameLib.setColor(Color.WHITE);
+            } else {
+                GameLib.setColor(Color.YELLOW);
+            }
+            zaWarudoRadius += 3;
+            GameLib.drawCircle(position.x, position.y, zaWarudoRadius);
+        } else {
+            zaWarudoRadius = 0;
+        }
         return zaWarudoTimer > 0;
     }
 
