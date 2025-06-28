@@ -27,6 +27,10 @@ public class Weapon<T extends Projectile> {
         return new Weapon<>(1000, Projectile.Ball::new);
     }
 
+    public static Weapon<Projectile.Laser> LaserPistol() {
+        return new Weapon<>(20, Projectile.Laser::new);
+    }
+
     public Optional<T> fire(long currentTime, Vector2D pos, Vector2D velocity) {
         if (currentTime > nextShot) {
             T bullet = bulletFactory.apply(pos, velocity);

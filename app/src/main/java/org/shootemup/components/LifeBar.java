@@ -29,7 +29,7 @@ public class LifeBar implements Renderable{
         double lostLife = (initialLife - finalLife) * (430.0 / initialLife);
 
 
-        if(lostLife < 380){
+        if(lostLife < 400){
             /*Preenchimento da Vida */
             GameLib.setColor(this.color);
             for (int i = 0; i < 4; i++) {
