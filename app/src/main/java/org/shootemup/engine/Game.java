@@ -43,6 +43,7 @@ public class Game {
     *(Afinal, o segundo boss só vai aparecer depois do primeiro)*/
     private boolean firstBossNotSpawn = true;
     private boolean secondBossNotSpawn = true;
+    boolean secondBossZaWarudo = false;
 
 
     public Game() {
@@ -61,23 +62,22 @@ public class Game {
         powerups = new ArrayList<>(5);
     }
 
+
     /// Lê a entrada do usuário e reage
     private void read_input() {
-        if(GameLib.iskeyPressed(GameLib.KEY_UP)) player.move(delta, Direction.NORTH);
-        if(GameLib.iskeyPressed(GameLib.KEY_DOWN)) player.move(delta, Direction.SOUTH);
-        if(GameLib.iskeyPressed(GameLib.KEY_LEFT)) player.move(delta, Direction.WEST);
-        if(GameLib.iskeyPressed(GameLib.KEY_RIGHT)) player.move(delta, Direction.EAST);
+        if(!secondBossZaWarudo){
+            if(GameLib.iskeyPressed(GameLib.KEY_UP)) player.move(delta, Direction.NORTH);
+            if(GameLib.iskeyPressed(GameLib.KEY_DOWN)) player.move(delta, Direction.SOUTH);
+            if(GameLib.iskeyPressed(GameLib.KEY_LEFT)) player.move(delta, Direction.WEST);
+            if(GameLib.iskeyPressed(GameLib.KEY_RIGHT)) player.move(delta, Direction.EAST);
 
-        if (GameLib.iskeyPressed(GameLib.KEY_CONTROL)) {
-            // Tenta atirar se for um sucesso adiciona projétil a lista de projeteis
-            if(player.isLaserModeActive()) {
-                player.laserShot(currentTime).ifPresent((laser) -> projectiles.add(laser));
-            } else {
+            if (GameLib.iskeyPressed(GameLib.KEY_CONTROL)) {
+                // Tenta atirar se for um sucesso adiciona projétil a lista de projeteis
                 player.shot(currentTime).ifPresent((bullet) -> projectiles.add(bullet));
             }
-        }
 
-        if(GameLib.iskeyPressed(GameLib.KEY_ESCAPE)) isRunning = false;
+            if(GameLib.iskeyPressed(GameLib.KEY_ESCAPE)) isRunning = false;
+        }
     }
 
     private void update() {
@@ -137,7 +137,6 @@ public class Game {
         });
 
         /* Movimenta/ Atualiza entidades */
-
         // Atualiza o estado das explosões e remove as que completaram
         explosions.removeIf(expl -> {expl.update(currentTime); return expl.isFinished();});
 
@@ -152,13 +151,31 @@ public class Game {
             return false;
         });
 
-        if(!player.isZaWarudoActive()) {
+
+        enemies.forEach(e -> {
+            if (e instanceof Enemy.SecondBoss) {
+                Enemy.SecondBoss advancedEnemy = (Enemy.SecondBoss) e;
+                if(!secondBossZaWarudo) advancedEnemy.activateBossZaWarudo(currentTime, nextBossSpawn);
+                secondBossZaWarudo = advancedEnemy.isZaWarudoActive();
+                advancedEnemy.updateZaWarudoTimer(delta);
+
+                if(secondBossZaWarudo){
+                    advancedEnemy.move(delta);
+                }
+            }
+        });
+
+
+
+
+
+        if(!player.isZaWarudoActive() && !secondBossZaWarudo) {
             // Movimenta os planos de fundo
             nearStarBackground.animate(delta);
             farStarBackground.animate(delta);
 
             // Atualiza a posicao dos projéteis inimigos
-            // e remove se fora da tela
+            // e remove de fora da tela
             projectiles.removeIf(proj -> {
                 if(proj instanceof Projectile.Ball) {
                     proj.move(delta);
@@ -224,12 +241,15 @@ public class Game {
             }
 
             /* Spawnar primeiro boss */
-            if((currentTime > nextBossSpawn) && firstBossNotSpawn == true){
-                enemies.add(new Enemy.FirstBoss(
-                    new Vector2D( (GameLib.WIDTH)/2 , -10.0),
-                    2000
-                ));
-                firstBossNotSpawn = false;
+            //if((currentTime > nextBossSpawn) && firstBossNotSpawn == true){
+            //    enemies.add(new Enemy.FirstBoss(new Vector2D( (GameLib.WIDTH)/2 , -10.0), 700));
+            //    firstBossNotSpawn = false;
+            //}
+
+            /* Spawnar segundo boss */
+            if((currentTime > nextBossSpawn) && secondBossNotSpawn == true){
+                enemies.add(new Enemy.SecondBoss(new Vector2D(GameLib.WIDTH/2 , -10.0), 700));
+                secondBossNotSpawn = false;
             }
 
             /* Spawnar power ups */
