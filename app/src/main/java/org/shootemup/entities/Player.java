@@ -16,12 +16,14 @@ public class Player extends Entity implements Shooter {
     private boolean isAlive = true;
     private long reviveAt = 0;
     private Weapon<? extends Projectile> gun;
+    private Weapon<? extends Projectile> laserGun;
     private long zaWarudoTimer = 0;
     private long laserModeTimer = 0;
 
     public Player(Vector2D pos, double radius, Vector2D velocity) {
         super(pos, velocity, radius, Color.BLUE);
         gun = Weapon.Pistol();
+        laserGun = Weapon.LaserPistol();
     }
 
     public void move(long dt, Direction dir) {
@@ -85,6 +87,17 @@ public class Player extends Entity implements Shooter {
             new Vector2D(position.x, position.y - 2 * radius),
             new Vector2D(0.0, -1.0)
         ).map(b -> (Projectile)b);
+    }
+
+    public Optional<Projectile> laserShot(long currentTime) {
+        if (!isAlive) return Optional.empty();
+        // angulando os tiros com o passar do tempo
+        //double vx = ((Math.cos(currentTime / 25) * Math.PI / 10) - Math.PI / 20);
+        return laserGun.fire(
+            currentTime,
+            new Vector2D(position.x, position.y - 2 * radius),
+            new Vector2D(0.0, -2.0)
+        ).map(b -> (Projectile)b);        
     }
 
 	@Override
