@@ -5,13 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import javax.annotation.OverridingMethodsMustInvokeSuper;
-
 import org.shootemup.GameLib;
 import org.shootemup.components.Vector2D;
 import org.shootemup.components.Weapon;
 import org.shootemup.components.LifeBar;
-import org.shootemup.engine.Game;
 import org.shootemup.utils.Shooter;
 
 

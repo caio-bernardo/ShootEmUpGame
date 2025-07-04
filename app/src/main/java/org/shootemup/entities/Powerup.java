@@ -1,14 +1,9 @@
 package org.shootemup.entities;
 
 import java.awt.Color;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 
 import org.shootemup.GameLib;
 import org.shootemup.components.Vector2D;
-import org.shootemup.components.Weapon;
-import org.shootemup.utils.Shooter;
 
 
 public abstract class Powerup extends Entity {
@@ -57,7 +52,6 @@ public abstract class Powerup extends Entity {
         }
 
         public static void renderEffect(Vector2D position, long timeLeft) {
-            System.out.println(timeLeft / duration);
             double x1 = position.x - ((double)timeLeft / (double)duration) * 24;
             double x2 = position.x + ((double)timeLeft / (double)duration) * 24;
             double y = position.y - 15;

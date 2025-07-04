@@ -9,20 +9,21 @@ import org.shootemup.components.Weapon;
 import org.shootemup.utils.Collidable;
 import org.shootemup.utils.Direction;
 import org.shootemup.utils.Shooter;
-import org.shootemup.entities.Powerup;
 
 
 public class Player extends Entity implements Shooter {
+    private int hp; // Pontos de vida
+    private long damageCoolDown = 0;
     private boolean isAlive = true;
-    private long reviveAt = 0;
-    private Weapon<? extends Projectile> gun;
+    private Weapon<? extends Projectile> pistolGun;
     private Weapon<? extends Projectile> laserGun;
     private long zaWarudoTimer = 0;
     private long laserModeTimer = 0;
 
-    public Player(Vector2D pos, double radius, Vector2D velocity) {
+    public Player(int hp, Vector2D pos, double radius, Vector2D velocity) {
         super(pos, velocity, radius, Color.BLUE);
-        gun = Weapon.Pistol();
+        this.hp = hp;
+        pistolGun = Weapon.Pistol();
         laserGun = Weapon.LaserPistol();
     }
 
@@ -42,20 +43,23 @@ public class Player extends Entity implements Shooter {
                 position.x = Math.max(position.getX() - dt * velocity.getX(), 0.0);
                 break;
             default:
-                // No movement
+                // Sem movimentos
                 break;
         }
     }
 
-    public void dieForDuration(long now, long durationMilis) {
-        isAlive = false;
-        reviveAt = now + durationMilis;
+
+    /// Função que atualiza a vida do player se ele tiver recebido dano
+    public void damage(long now) {
+        if (now < damageCoolDown) return;
+        if (hp > 0) {
+            hp--;
+        }
+        damageCoolDown = now + 100;
     }
 
-    public void revive(long now) {
-        if (now > reviveAt) {
-            isAlive = true;
-        }
+    public int getHP() {
+        return hp;
     }
 
     public void pickPowerUp(Powerup powerup) {
@@ -85,14 +89,24 @@ public class Player extends Entity implements Shooter {
 
     @Override
     public Optional<Projectile> shot(long currentTime) {
-        if (!isAlive) return Optional.empty();
-        return gun.fire(
-            currentTime,
-            new Vector2D(position.x, position.y - 2 * radius),
-            new Vector2D(0.0, -1.0)
-        ).map(b -> (Projectile)b);
+        if (isLaserModeActive()) {
+            return laserShot(currentTime);
+        } else {
+            return pistolShot(currentTime);
+        }
     }
 
+    /// Tiro com pistola
+    public Optional<Projectile> pistolShot(long currentTime) {
+            if (!isAlive) return Optional.empty();
+            return pistolGun.fire(
+                currentTime,
+                new Vector2D(position.x, position.y - 2 * radius),
+                new Vector2D(0.0, -1.0)
+            ).map(b -> (Projectile)b);
+        }
+
+    /// Tiro com laser
     public Optional<Projectile> laserShot(long currentTime) {
         if (!isAlive) return Optional.empty();
         // angulando os tiros com o passar do tempo
@@ -101,7 +115,7 @@ public class Player extends Entity implements Shooter {
             currentTime,
             new Vector2D(position.x, position.y - 2 * radius),
             new Vector2D(0.0, -2.0)
-        ).map(b -> (Projectile)b);        
+        ).map(b -> (Projectile)b);
     }
 
 	@Override
