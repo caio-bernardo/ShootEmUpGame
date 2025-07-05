@@ -196,7 +196,7 @@ public abstract class Enemy extends Entity implements Shooter {
         }
     }
 
-    public static class SecondBoss extends Enemy{
+    public static class ZaWarudo extends Enemy{
 
         private LifeBar bossLife;
         private boolean shift = true;
@@ -210,7 +210,7 @@ public abstract class Enemy extends Entity implements Shooter {
         double thresholdRightX = GameLib.WIDTH * 0.85;
         double thresholdLeftX = GameLib.WIDTH * 0.15;
 
-        public SecondBoss(Vector2D pos, int life, long nextBossZawarudo) {
+        public ZaWarudo(Vector2D pos, int life, long nextBossZawarudo) {
            super(Color.YELLOW, pos, 30.0, new Vector2D(0.05, 0.05), 1.0, life);
            gun = Weapon.zapCannon();
            bossLife = new LifeBar(this.color, life);

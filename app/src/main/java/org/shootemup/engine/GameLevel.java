@@ -44,8 +44,8 @@ public class GameLevel {
             case "ShadowPlayer":
                 addEnemy(new Enemy.ShadowPlayer(new Vector2D(x, y), life), spawnTime);
                 break;
-            case "SecondBoss":
-                addEnemy(new Enemy.SecondBoss(new Vector2D(x, y), life, spawnTime + 5000), spawnTime);
+            case "ZaWarudo":
+                addEnemy(new Enemy.ZaWarudo(new Vector2D(x, y), life, spawnTime + 5000), spawnTime);
                 break;
             default:
                 throw new IllegalStateException("Inimigo de Tipo não suportado: " + enemyType);

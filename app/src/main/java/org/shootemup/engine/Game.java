@@ -108,7 +108,7 @@ public class Game {
 
         // Se o jogador perder todos os pontos de vida encerra o jogo
         if (player.getHP() == 0) {
-            System.out.println("Game Over!!! Você morreu! Seja melhor na próxima vez, jogue de novo!");
+            System.out.println("It's over, não sobrou nada! Game Over!!!");
             isRunning = false;
             return;
         }
@@ -227,8 +227,8 @@ public class Game {
         });
 
         enemies.forEach(e -> {
-            if (e instanceof Enemy.SecondBoss) {
-                Enemy.SecondBoss advancedEnemy = (Enemy.SecondBoss) e;
+            if (e instanceof Enemy.ZaWarudo) {
+                Enemy.ZaWarudo advancedEnemy = (Enemy.ZaWarudo) e;
                 if(!secondBossZaWarudo) advancedEnemy.activateBossZaWarudo(currentTime);
                 secondBossZaWarudo = advancedEnemy.isZaWarudoActive(currentTime);
                 advancedEnemy.updateZaWarudoTimer(delta);
