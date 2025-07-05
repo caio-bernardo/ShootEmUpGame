@@ -69,18 +69,9 @@ public class Player extends Entity implements Shooter {
 
     public boolean isZaWarudoActive()
     {
-        if(zaWarudoTimer > 0){
-            if(zaWarudoTimer % 2 == 1){
-                GameLib.setColor(Color.WHITE);
-            } else {
-                GameLib.setColor(Color.YELLOW);
-            }
-            zaWarudoRadius += 3;
-            GameLib.drawCircle(position.x, position.y, zaWarudoRadius);
-        } else {
-            zaWarudoRadius = 0;
-        }
-        return zaWarudoTimer > 0;
+        boolean result = zaWarudoTimer > 0;
+        if(result) Powerup.ZaWarudo.renderEffect(position, zaWarudoTimer, Color.WHITE);
+        return result;
     }
 
     public boolean isLaserModeActive() {
@@ -112,7 +103,7 @@ public class Player extends Entity implements Shooter {
             currentTime,
             new Vector2D(position.x, position.y - 2 * radius),
             new Vector2D(0.0, -2.0)
-        ).map(b -> (Projectile)b);        
+        ).map(b -> (Projectile)b);
     }
 
 	@Override
