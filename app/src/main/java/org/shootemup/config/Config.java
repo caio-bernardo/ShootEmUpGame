@@ -1,6 +1,5 @@
 package org.shootemup.config;
 
-import java.awt.desktop.PrintFilesHandler;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
