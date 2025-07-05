@@ -14,7 +14,6 @@ public class LifeBar implements Renderable{
 
     public LifeBar(Color color, int life){
         initialLife = life;
-        finalLife = life;
         this.color = color;
     }
 
@@ -25,9 +24,7 @@ public class LifeBar implements Renderable{
     @Override
     public void render(){
 
-
-        double lostLife = (initialLife - finalLife) * (430.0 / initialLife);
-
+        double lostLife = (initialLife - finalLife) * (385.0 / initialLife);
 
         if(lostLife < 400){
             /*Preenchimento da Vida */

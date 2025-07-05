@@ -59,18 +59,24 @@ public class Game {
         powerups = new ArrayList<>(5);
     }
 
+
     /// Lê a entrada do usuário e reage
     private void read_input() {
-        if(GameLib.iskeyPressed(GameLib.KEY_UP)) player.move(delta, Direction.NORTH);
-        if(GameLib.iskeyPressed(GameLib.KEY_DOWN)) player.move(delta, Direction.SOUTH);
-        if(GameLib.iskeyPressed(GameLib.KEY_LEFT)) player.move(delta, Direction.WEST);
-        if(GameLib.iskeyPressed(GameLib.KEY_RIGHT)) player.move(delta, Direction.EAST);
+        if(!secondBossZaWarudo){
+            if(GameLib.iskeyPressed(GameLib.KEY_UP)) player.move(delta, Direction.NORTH);
+            if(GameLib.iskeyPressed(GameLib.KEY_DOWN)) player.move(delta, Direction.SOUTH);
+            if(GameLib.iskeyPressed(GameLib.KEY_LEFT)) player.move(delta, Direction.WEST);
+            if(GameLib.iskeyPressed(GameLib.KEY_RIGHT)) player.move(delta, Direction.EAST);
 
-        if (GameLib.iskeyPressed(GameLib.KEY_CONTROL)) {
-            // Tenta atirar se for um sucesso adiciona projétil a lista de projeteis
-            player.shot(currentTime).ifPresent((bullet) -> projectiles.add(bullet));
+            if (GameLib.iskeyPressed(GameLib.KEY_CONTROL)) {
+                // Tenta atirar se for um sucesso adiciona projétil a lista de projeteis
+                if(player.isLaserModeActive()){
+                    player.laserShot(currentTime).ifPresent((laser)-> projectiles.add(laser));
+                } else{
+                    player.shot(currentTime).ifPresent((bullet) -> projectiles.add(bullet));
+                }
+            }
         }
-
         if(GameLib.iskeyPressed(GameLib.KEY_ESCAPE)) isRunning = false;
     }
 
@@ -107,7 +113,7 @@ public class Game {
         }
 
         // Se o powerup de pausa de tempo esta desativado mexa animações e inimigos
-        if(!player.isZaWarudoActive()) {
+        if(!player.isZaWarudoActive() && !secondBossZaWarudo) {
 
             // Movimenta os planos de fundo
             nearStarBackground.animate(delta);
@@ -116,7 +122,7 @@ public class Game {
             // Atualiza a posicao dos projéteis inimigos
             // e remove se fora da tela
             projectiles.removeIf(proj -> {
-                if(proj instanceof Projectile.Ball) {
+                if(proj instanceof Projectile.Ball || proj instanceof Projectile.timeBall) {
                     proj.move(delta);
                     Vector2D pos = proj.getPosition();
                     return pos.getX() < 0 || pos.getX() > GameLib.WIDTH || pos.getY() < 0 || pos.getY() > GameLib.HEIGHT;
@@ -159,7 +165,7 @@ public class Game {
 
         // colisoes entre player e projeteis do tipo Ball
         projectiles.stream()
-            .filter(proj -> proj instanceof Projectile.Ball)
+            .filter(proj -> proj instanceof Projectile.Ball || proj instanceof Projectile.timeBall)
             .forEach(proj -> {
                 if (player.intersects(proj)) {
                     player.damage(currentTime);
@@ -188,6 +194,9 @@ public class Game {
                         enemy.setLife(--momentLife);
                         explosions.add(new Explosion(enemy.getPosition(), currentTime, 500));
                         if(enemy.getLife() == 0){
+                            if(enemy instanceof Enemy.FirstBoss){
+                                firstBossDeath = true;
+                            }
                             return true;
                         }
                     }
@@ -205,7 +214,6 @@ public class Game {
         });
 
         /* Movimenta/ Atualiza entidades */
-
         // Atualiza o estado das explosões e remove as que completaram
         explosions.removeIf(expl -> {expl.update(currentTime); return expl.isFinished();});
 
@@ -219,6 +227,20 @@ public class Game {
             }
             return false;
         });
+      
+        enemies.forEach(e -> {
+            if (e instanceof Enemy.SecondBoss) {
+                Enemy.SecondBoss advancedEnemy = (Enemy.SecondBoss) e;
+                if(!secondBossZaWarudo) advancedEnemy.activateBossZaWarudo(currentTime);
+                secondBossZaWarudo = advancedEnemy.isZaWarudoActive(currentTime);
+                advancedEnemy.updateZaWarudoTimer(delta);
+
+                if(secondBossZaWarudo){
+                    advancedEnemy.move(delta);
+                    advancedEnemy.shot(currentTime).ifPresent(bullet -> projectiles.add(bullet));
+                }
+            }
+         });
     }
 
     private void render() {

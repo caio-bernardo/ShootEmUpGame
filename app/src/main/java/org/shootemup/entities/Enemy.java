@@ -10,6 +10,7 @@ import org.shootemup.components.Vector2D;
 import org.shootemup.components.Weapon;
 import org.shootemup.components.LifeBar;
 import org.shootemup.utils.Shooter;
+import org.shootemup.entities.Powerup;
 
 // Classe Abstrata que engloba os diferentes inimigos do jogo
 public abstract class Enemy extends Entity implements Shooter {
@@ -149,7 +150,7 @@ public abstract class Enemy extends Entity implements Shooter {
            gun = Weapon.Cannon();
            this.angle = (3 * Math.PI) / 2;
            this.rotationSpeed = 0.0;
-           bossLife = new LifeBar(Color.RED, life);
+           bossLife = new LifeBar(this.color, life);
         }
 
 
@@ -166,8 +167,8 @@ public abstract class Enemy extends Entity implements Shooter {
         public void move(long dt) {
             double prevY = position.getY();
 
-            position.x += 4 * (velocity.getX() * Math.cos(angle) * dt);
-            position.y -= 4 * (velocity.getY() * Math.sin(angle) * dt);
+            position.x += 7 * (velocity.getX() * Math.cos(angle) * dt);
+            position.y -= 5 * (velocity.getY() * Math.sin(angle) * dt);
 
             angle += rotationSpeed * dt;
 
@@ -176,10 +177,10 @@ public abstract class Enemy extends Entity implements Shooter {
             if(prevY < threshold && position.getY() >= threshold){
 
                 if(position.getX() < GameLib.WIDTH / 2){
-                    rotationSpeed = 0.003;
+                    rotationSpeed = 0.004;
                 }
                 if(position.getX() >= GameLib.WIDTH / 2){
-                    rotationSpeed = -0.003;
+                    rotationSpeed = -0.004;
                 }
             }
         }
@@ -191,10 +192,95 @@ public abstract class Enemy extends Entity implements Shooter {
             GameLib.drawLine(position.getX() + radius, position.getY() - radius, position.getX(), position.getY() + radius);
             GameLib.drawLine(position.getX() - radius, position.getY() - radius, position.getX(), position.getY() - radius * 0.5);
             GameLib.drawLine(position.getX() + radius, position.getY() - radius, position.getX(), position.getY() - radius * 0.5);
-
             bossLife.setFinalLife(this.getLife());
             bossLife.render();
         }
     }
 
+    public static class SecondBoss extends Enemy{
+
+        private LifeBar bossLife;
+        private boolean shift = true;
+
+        private long zaWarudoTimer = 0;
+        private int zaWarudoRadius = 0;
+        private boolean canZawarudo = true;
+        private long nextBossZawarudo;
+
+        double thresholdUpY = GameLib.HEIGHT * 0.20;
+        double thresholdDownY = GameLib.HEIGHT * 0.85;
+        double thresholdRightX = GameLib.WIDTH * 0.85;
+        double thresholdLeftX = GameLib.WIDTH * 0.15;
+
+        public SecondBoss(Vector2D pos, int life, long nextBossZawarudo) {
+           super(Color.YELLOW, pos, 30.0, new Vector2D(0.05, 0.05), 1.0, life);
+           gun = Weapon.zapCannon();
+           bossLife = new LifeBar(this.color, life);
+           this.nextBossZawarudo = nextBossZawarudo;
+        }
+
+        @Override
+        public Optional<Projectile> shot(long currentTime) {
+            double senseOfShot = position.getY() == thresholdDownY ? -1.0 : 1.0;
+            return gun.fire(
+                currentTime,
+                new Vector2D(position.x, position.y),
+                new Vector2D(0.0, senseOfShot)
+            ).map(b -> (Projectile)b);
+        }
+
+        @Override
+        public void move(long dt) {
+            if(position.getY() < thresholdUpY || position.getX() == thresholdRightX && position.getY() < thresholdDownY){
+                position.y += 1;
+            }
+            if(position.getY() == thresholdUpY && position.getX() < thresholdRightX){
+                position.x += 1;
+            }
+            if(position.getY() == thresholdDownY && position.getX() > thresholdLeftX){
+                position.x -= 1;
+            }
+            if(position.getX() == thresholdLeftX){
+                position.y -= 1;
+            }
+        }
+
+        public void activateBossZaWarudo(long currentTime){
+            if(currentTime > nextBossZawarudo && canZawarudo){
+                zaWarudoTimer = Powerup.ZaWarudo.duration;
+                canZawarudo = false;
+            }
+        }
+
+        public boolean isZaWarudoActive(long currentTime){
+            if(zaWarudoTimer > 0){
+                Powerup.ZaWarudo.renderEffect(position, zaWarudoTimer, Color.YELLOW);
+            } else {
+                zaWarudoRadius = 0;
+                if(!canZawarudo){
+                    nextBossZawarudo = currentTime + 10000;
+                    canZawarudo = true;
+                }
+            }
+            return zaWarudoTimer > 0;
+        }
+
+        public void updateZaWarudoTimer(long dt) {
+            zaWarudoTimer = zaWarudoTimer - dt < 0 ? 0 : zaWarudoTimer - dt;
+        }
+
+		@Override
+        public void render() {
+            GameLib.setColor(color);
+            if(shift){
+                GameLib.drawDiamond(position.getX(), position.getY(), 30);
+                shift = false;
+            } else{
+                GameLib.drawCircle(position.getX(), position.getY(), 30);
+                shift = true;
+            }
+            bossLife.setFinalLife(this.getLife());
+            bossLife.render();
+        }
+    }
 }
