@@ -19,7 +19,6 @@ public class Player extends Entity implements Shooter {
     private Weapon<? extends Projectile> laserGun;
     private long zaWarudoTimer = 0;
     private long laserModeTimer = 0;
-    private int zaWarudoRadius = 0;
 
     public Player(int hp, Vector2D pos, double radius, Vector2D velocity) {
         super(pos, velocity, radius, Color.BLUE);

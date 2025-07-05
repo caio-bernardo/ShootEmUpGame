@@ -10,7 +10,6 @@ import org.shootemup.components.Vector2D;
 import org.shootemup.components.Weapon;
 import org.shootemup.components.LifeBar;
 import org.shootemup.utils.Shooter;
-import org.shootemup.entities.Powerup;
 
 // Classe Abstrata que engloba os diferentes inimigos do jogo
 public abstract class Enemy extends Entity implements Shooter {
@@ -203,7 +202,6 @@ public abstract class Enemy extends Entity implements Shooter {
         private boolean shift = true;
 
         private long zaWarudoTimer = 0;
-        private int zaWarudoRadius = 0;
         private boolean canZawarudo = true;
         private long nextBossZawarudo;
 
@@ -256,7 +254,6 @@ public abstract class Enemy extends Entity implements Shooter {
             if(zaWarudoTimer > 0){
                 Powerup.ZaWarudo.renderEffect(position, zaWarudoTimer, Color.YELLOW);
             } else {
-                zaWarudoRadius = 0;
                 if(!canZawarudo){
                     nextBossZawarudo = currentTime + 10000;
                     canZawarudo = true;

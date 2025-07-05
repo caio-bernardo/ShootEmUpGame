@@ -27,6 +27,7 @@ public class Game {
     private Background nearStarBackground;
 
     private Player player;
+    private boolean secondBossZaWarudo = false;
     private List<Projectile> projectiles;
     private List<Enemy> enemies;
     private List<Explosion> explosions;
@@ -72,7 +73,7 @@ public class Game {
                 // Tenta atirar se for um sucesso adiciona projétil a lista de projeteis
                 if(player.isLaserModeActive()){
                     player.laserShot(currentTime).ifPresent((laser)-> projectiles.add(laser));
-                } else{
+                } else {
                     player.shot(currentTime).ifPresent((bullet) -> projectiles.add(bullet));
                 }
             }
@@ -194,9 +195,6 @@ public class Game {
                         enemy.setLife(--momentLife);
                         explosions.add(new Explosion(enemy.getPosition(), currentTime, 500));
                         if(enemy.getLife() == 0){
-                            if(enemy instanceof Enemy.FirstBoss){
-                                firstBossDeath = true;
-                            }
                             return true;
                         }
                     }
@@ -227,7 +225,7 @@ public class Game {
             }
             return false;
         });
-      
+
         enemies.forEach(e -> {
             if (e instanceof Enemy.SecondBoss) {
                 Enemy.SecondBoss advancedEnemy = (Enemy.SecondBoss) e;
