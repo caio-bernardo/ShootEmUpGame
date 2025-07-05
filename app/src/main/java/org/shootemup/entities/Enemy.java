@@ -11,7 +11,7 @@ import org.shootemup.components.Weapon;
 import org.shootemup.components.LifeBar;
 import org.shootemup.utils.Shooter;
 
-
+// Classe Abstrata que engloba os diferentes inimigos do jogo
 public abstract class Enemy extends Entity implements Shooter {
     protected double rotationSpeed;
     protected Weapon<? extends Projectile> gun;
@@ -37,6 +37,7 @@ public abstract class Enemy extends Entity implements Shooter {
             GameLib.drawCircle(position.getX(), position.getY(), radius);
 	}
 
+	// Inimigo tipo comum: se movimenta para frente e atira
     public static class Common extends Enemy {
 
         public Common(Vector2D pos) {
@@ -54,7 +55,7 @@ public abstract class Enemy extends Entity implements Shooter {
 		}
     }
 
-    /// Inimigo Flyers (voadores), andam em formação e giram
+    /// Inimigo tipo Flyers (voadores), andam em formação, giram e disparam multiplos tiros
     public static class Flyer extends Enemy {
         private double angle;
         private boolean canShoot = false;
@@ -136,13 +137,14 @@ public abstract class Enemy extends Entity implements Shooter {
         }
     }
 
-    public static class FirstBoss extends Enemy{
+    /// Inimigo ShadowPlayer: versão maior e maligna do player, se movimenta em circulos
+    public static class ShadowPlayer extends Enemy{
 
         private double angle;
         protected LifeBar bossLife;
 
 
-        public FirstBoss(Vector2D pos, int life) {
+        public ShadowPlayer(Vector2D pos, int life) {
            super(Color.RED, pos, 30.0, new Vector2D(0.05, 0.05), 1.0, life);
            gun = Weapon.Cannon();
            this.angle = (3 * Math.PI) / 2;

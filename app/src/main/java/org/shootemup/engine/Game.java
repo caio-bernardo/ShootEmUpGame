@@ -34,9 +34,6 @@ public class Game {
 
     private Queue<GameLevel> levels; // Fila de fases
 
-    // Intervalo em que powerups spawnam
-    private long nextPowerupSpawn = currentTime + 7500;
-
     public Game() {
         // Inicializa o jogo com os arquivos de configuração
         var config = new Config();
@@ -79,7 +76,7 @@ public class Game {
 
     /// Função para atualizar movimentos, animações, checar colisões e spawnar inimigos
     private void update() {
-
+        /* Lógica das fases */
         // Se não tem mais fases nem inimigos o jogador venceu
         if (levels.peek() == null) {
             if (enemies.isEmpty()) {
@@ -92,10 +89,12 @@ public class Game {
                 levels.peek().start(currentTime);
             }
 
-            // Spawna os inimigos com spawn < que o tempo atual
+            // Spawna entidades com spawn < que o tempo atual
             enemies.addAll(levels.peek().takeEnemiesLessThan(currentTime));
-            // Se nao tem mais inimigos e a fase atual nao te mais quem adicionar puxa a proxima fase
-            if (enemies.isEmpty() && levels.peek().isEmpty()) {
+            powerups.addAll(levels.peek().takePowerUpsLessThan(currentTime));
+
+            // Se nao tem mais entidades e a fase atual nao tem mais quem adicionar -> puxa a proxima fase
+            if (enemies.isEmpty() && levels.peek().isComplete()) {
                 levels.poll();
             }
         }
@@ -151,16 +150,6 @@ public class Game {
                 Vector2D pos = pow.getPosition();
                 return pos.getY() > GameLib.HEIGHT + 10;
             });
-
-            // /* Spawnar power ups */
-            if(currentTime > nextPowerupSpawn) {
-                if(Math.random() * 2 < 1) {
-                    powerups.add(new Powerup.ZaWarudo(new Vector2D(Math.random() * (GameLib.WIDTH - 20) + 10, -10.0)));
-                } else {
-                    powerups.add(new Powerup.LaserMode(new Vector2D(Math.random() * (GameLib.WIDTH - 20) + 10, -10.0)));
-                }
-                nextPowerupSpawn = currentTime + 2000 + (long)(Math.random() * 13000);
-            }
         }
 
         // checa se power ups acabaram

@@ -1,5 +1,6 @@
 package org.shootemup.config;
 
+import java.awt.desktop.PrintFilesHandler;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -19,6 +20,7 @@ public class Config {
     // Arquivo de configuração do jogo
     private static final Path configFilePath = Paths.get("src/main/resources/config.txt");
 
+    /// Abre o arquivo de configuração e carrega dados iniciais e arquivo de fases
     public Config() {
         try (Scanner configFile = new Scanner(configFilePath)){
             playerLife = configFile.nextInt();
@@ -31,8 +33,6 @@ public class Config {
                 phaseFiles.add(Paths.get(configFile.nextLine().trim()));
                 i++;
             }
-            System.out.println(playerLife);
-            System.out.println(phaseFiles);
         } catch (Exception e) {
             System.err.println("Falha ao ler arquivo de configuração: " + e);
         }
@@ -43,7 +43,7 @@ public class Config {
         var phases = new LinkedList<GameLevel>();
 
         for (var file: phaseFiles) {
-            // Abre cada arquiv, lê linha por linha e cria as entidades necessesárias
+            // Abre cada arquivo, lê linha por linha e cria as entidades necessesárias
             var phase = new GameLevel();
 
             try (Scanner scanner = new Scanner(file)) {
@@ -52,31 +52,37 @@ public class Config {
                     if (line.isEmpty()) continue;
                     String[] tokens = line.split("\\s+");
 
-                    int life = 1;
-                    long spawnTime;
-                    int y;
-                    int x;
-
-                    String enemy_type = tokens[1];
+                    // Confere o tipo de entidade que temos e se os dados da linha estao no formato certo
+                    // Senao retorna uma exceção
                     if (tokens[0].contains("CHEFE") && tokens.length == 6) {
-                        life = Integer.parseInt(tokens[2]);
-                        spawnTime = Long.parseLong(tokens[3]);
-                        x = Integer.parseInt(tokens[4]);
-                        y = Integer.parseInt(tokens[5]);
-
+                        String enemyType = tokens[1].trim();
+                        int life = Integer.parseInt(tokens[2]);
+                        long spawnTime = Long.parseLong(tokens[3]);
+                        int x = Integer.parseInt(tokens[4]);
+                        int y = Integer.parseInt(tokens[5]);
+                        phase.addEnemyFromRawData(enemyType, spawnTime, life, x, y);
                     } else if (tokens[0].contains("INIMIGO") && tokens.length == 5) {
-                        spawnTime = Long.parseLong(tokens[2]);
-                        x = Integer.parseInt(tokens[3]);
-                        y = Integer.parseInt(tokens[4]);
+                        String enemyType = tokens[1].trim();
+                        long spawnTime = Long.parseLong(tokens[2]);
+                        int x = Integer.parseInt(tokens[3]);
+                        int y = Integer.parseInt(tokens[4]);
+                        phase.addEnemyFromRawData(enemyType, spawnTime, 1, x, y);
+                    } else if (tokens[0].contains("POWERUP") && tokens.length == 5) {
+                        String powerupType = tokens[1].trim();
+                        long spawnTime = Long.parseLong(tokens[2]);
+                        int x = Integer.parseInt(tokens[3]);
+                        int y = Integer.parseInt(tokens[4]);
+                        phase.addPowerUpFromRawParts(powerupType, spawnTime, x, y);
                     } else {
                         throw new IllegalArgumentException("Formato de dados da fase inválido");
                     }
-                    phase.addEnemyFromRawData(enemy_type, spawnTime, life, x, y);
                 }
             } catch (IOException e) {
                 System.err.printf("Falha ao acessar (%s): %s\n", file, e);
             } catch (IllegalArgumentException e) {
                 System.err.printf("Falha ao ler dados do arquivo (%s): %s\n", file, e);
+            } catch (IllegalStateException e) {
+                System.err.printf("Falha ao criar uma entidade a partir dos dados do arquivo (%s): %s\n", file, e);
             }
             phases.addLast(phase);
         }

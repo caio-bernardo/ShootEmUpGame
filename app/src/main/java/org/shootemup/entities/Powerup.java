@@ -5,12 +5,14 @@ import java.awt.Color;
 import org.shootemup.GameLib;
 import org.shootemup.components.Vector2D;
 
-
+/// Representa powerups adquiriveis pelo player
 public abstract class Powerup extends Entity {
     protected Powerup(Color color, Vector2D pos, double radius, Vector2D velocity) {
            super(pos, velocity, radius, color);
     }
 
+
+    // PowerUp ZaWaarudo: durante `duration` o jogador pode para o tempo
     public static class ZaWarudo extends Powerup {
         public final static long duration = 4000;
 
@@ -44,6 +46,7 @@ public abstract class Powerup extends Entity {
         }
     }
 
+    // PwerUp LazerMode: trasforma a arma do player em um laser de longo alcance
     public static class LaserMode extends Powerup {
         public final static long duration = 8000;
 
