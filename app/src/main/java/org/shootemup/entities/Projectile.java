@@ -5,13 +5,15 @@ import java.awt.Color;
 import org.shootemup.GameLib;
 import org.shootemup.components.Vector2D;
 
+/// Classe abstrata que representa um projétil
 public abstract class Projectile extends Entity {
 
     protected Projectile(Vector2D position, Vector2D velocity, Color color) {
+        // Todos os projéteis tem raio 1.0
         super(position, velocity, 1.0, color);
     }
 
-    /// Representa um projétil em formato de bala
+    /// Representa um projétil em formato de bala (um conjunto de 3 linhas)
     public static class Bullet extends Projectile {
 
         public Bullet(Vector2D position, Vector2D velocity) {
