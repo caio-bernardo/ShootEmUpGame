@@ -23,6 +23,10 @@ public class Weapon<T extends Projectile> {
         return new Weapon<>(500, Projectile.Ball::new);
     }
 
+    public static Weapon<Projectile.timeBall> zapCannon() { /*Referências a cidade de deus KKKKK */
+        return new Weapon<>(200, Projectile.timeBall::new);
+    }
+
     public static Weapon<Projectile.Ball> TripleCannon() {
         return new Weapon<>(1000, Projectile.Ball::new);
     }
@@ -50,6 +54,10 @@ public class Weapon<T extends Projectile> {
 
     public long getReckoilMilis() {
         return reckoilMilis;
+    }
+
+    public void setReckoilMilis(long reckoilMilis){
+        this.reckoilMilis = reckoilMilis;
     }
 
 }

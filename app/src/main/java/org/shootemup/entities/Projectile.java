@@ -58,4 +58,18 @@ public abstract class Projectile extends Entity {
 		}
     }
 
+    public static class timeBall extends Projectile {
+
+        public timeBall(Vector2D position, Vector2D velocity) {
+            super(position, velocity, Color.LIGHT_GRAY);
+            radius = 2.0;
+        }
+
+		@Override
+		public void render() {
+			GameLib.setColor(color);
+			GameLib.drawCircle(position.getX(), position.getY(), radius);
+		}
+    }
+
 }

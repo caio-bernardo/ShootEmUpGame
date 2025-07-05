@@ -42,8 +42,10 @@ public class Game {
     /*A ideia é que, no decorrer da execução, a segunda dependa da primeira
     *(Afinal, o segundo boss só vai aparecer depois do primeiro)*/
     private boolean firstBossNotSpawn = true;
+    private boolean firstBossDeath = false;
     private boolean secondBossNotSpawn = true;
-    boolean secondBossZaWarudo = false;
+    private boolean secondBossZaWarudo = false;
+    private long nextBossZawarudo = nextBossSpawn + 5000;
 
 
     public Game() {
@@ -73,7 +75,11 @@ public class Game {
 
             if (GameLib.iskeyPressed(GameLib.KEY_CONTROL)) {
                 // Tenta atirar se for um sucesso adiciona projétil a lista de projeteis
-                player.shot(currentTime).ifPresent((bullet) -> projectiles.add(bullet));
+                if(player.isLaserModeActive()){
+                    player.laserShot(currentTime).ifPresent((laser)-> projectiles.add(laser));
+                } else{
+                    player.shot(currentTime).ifPresent((bullet) -> projectiles.add(bullet));
+                }
             }
 
             if(GameLib.iskeyPressed(GameLib.KEY_ESCAPE)) isRunning = false;
@@ -91,7 +97,7 @@ public class Game {
 
         // colisoes entre player e projeteis do tipo Ball
         projectiles.stream()
-            .filter(proj -> proj instanceof Projectile.Ball)
+            .filter(proj -> proj instanceof Projectile.Ball || proj instanceof Projectile.timeBall)
             .forEach(proj -> {
                 if (player.intersects(proj)) {
                     player.dieForDuration(currentTime, 2000);
@@ -120,6 +126,9 @@ public class Game {
                         enemy.setLife(--momentLife);
                         explosions.add(new Explosion(enemy.getPosition(), currentTime, 500));
                         if(enemy.getLife() == 0){
+                            if(enemy instanceof Enemy.FirstBoss){
+                                firstBossDeath = true;
+                            }
                             return true;
                         }
                     }
@@ -155,18 +164,16 @@ public class Game {
         enemies.forEach(e -> {
             if (e instanceof Enemy.SecondBoss) {
                 Enemy.SecondBoss advancedEnemy = (Enemy.SecondBoss) e;
-                if(!secondBossZaWarudo) advancedEnemy.activateBossZaWarudo(currentTime, nextBossSpawn);
-                secondBossZaWarudo = advancedEnemy.isZaWarudoActive();
+                if(!secondBossZaWarudo) advancedEnemy.activateBossZaWarudo(currentTime);
+                secondBossZaWarudo = advancedEnemy.isZaWarudoActive(currentTime);
                 advancedEnemy.updateZaWarudoTimer(delta);
 
                 if(secondBossZaWarudo){
                     advancedEnemy.move(delta);
+                    advancedEnemy.shot(currentTime).ifPresent(bullet -> projectiles.add(bullet));
                 }
             }
         });
-
-
-
 
 
         if(!player.isZaWarudoActive() && !secondBossZaWarudo) {
@@ -177,7 +184,7 @@ public class Game {
             // Atualiza a posicao dos projéteis inimigos
             // e remove de fora da tela
             projectiles.removeIf(proj -> {
-                if(proj instanceof Projectile.Ball) {
+                if(proj instanceof Projectile.Ball || proj instanceof Projectile.timeBall) {
                     proj.move(delta);
                     Vector2D pos = proj.getPosition();
                     return pos.getX() < 0 || pos.getX() > GameLib.WIDTH || pos.getY() < 0 || pos.getY() > GameLib.HEIGHT;
@@ -199,7 +206,11 @@ public class Game {
                     Enemy.Flyer advancedEnemy = (Enemy.Flyer) e;
                     List<Projectile> multiShot = advancedEnemy.shotMultiple(currentTime);
                     projectiles.addAll(multiShot);
-                } else {
+                } /*else if(e instanceof Enemy.SecondBoss){
+                    Enemy.SecondBoss advancedEnemy = (Enemy.SecondBoss) e;
+                    List<Projectile> multiShot = advancedEnemy.shotMultiple(currentTime, player.getPosition());
+                    projectiles.addAll(multiShot);
+                }*/ else {
                     e.shot(currentTime).ifPresent(bullet -> projectiles.add(bullet));
                 }
             });
@@ -241,14 +252,14 @@ public class Game {
             }
 
             /* Spawnar primeiro boss */
-            //if((currentTime > nextBossSpawn) && firstBossNotSpawn == true){
-            //    enemies.add(new Enemy.FirstBoss(new Vector2D( (GameLib.WIDTH)/2 , -10.0), 700));
-            //    firstBossNotSpawn = false;
-            //}
+            if((currentTime > nextBossSpawn) && firstBossNotSpawn == true){
+                enemies.add(new Enemy.FirstBoss(new Vector2D( (GameLib.WIDTH)/2 , -10.0), 700));
+                firstBossNotSpawn = false;
+            }
 
             /* Spawnar segundo boss */
-            if((currentTime > nextBossSpawn) && secondBossNotSpawn == true){
-                enemies.add(new Enemy.SecondBoss(new Vector2D(GameLib.WIDTH/2 , -10.0), 700));
+            if((currentTime > nextBossSpawn) && secondBossNotSpawn == true && firstBossDeath){
+                enemies.add(new Enemy.SecondBoss(new Vector2D(GameLib.WIDTH/2 , -10.0), 700, nextBossSpawn + 5000));
                 secondBossNotSpawn = false;
             }
 
