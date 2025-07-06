@@ -54,17 +54,20 @@ public abstract class Powerup extends Entity {
             super(Color.ORANGE, pos, 8.0, new Vector2D(0.0, 0.08 + Math.random() * 0.07));
         }
 
-        public static void renderEffect(Vector2D position, long timeLeft) {
+        public static void renderEffect(Vector2D position, long timeLeft, boolean isPlayerShooting) {
+
+
+            double y = isPlayerShooting ? position.y - 15: position.y + 45;
             double x1 = position.x - ((double)timeLeft / (double)duration) * 24;
             double x2 = position.x + ((double)timeLeft / (double)duration) * 24;
-            double y = position.y - 15;
             GameLib.setColor(Color.RED);
             GameLib.drawLine(x1, y, x2, y);
             x1 = position.x - ((double)timeLeft / (double)duration) * 16;
             x2 = position.x + ((double)timeLeft / (double)duration) * 16;
-            y -= 6;
+
+            y = isPlayerShooting ? y - 6: y + 6;
             GameLib.drawLine(x1, y, x2, y);
-            y -= 4;
+            y = isPlayerShooting ? y - 4: y + 4;
             GameLib.drawCircle(position.x, y, 4);
         }
     }

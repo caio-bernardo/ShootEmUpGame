@@ -24,7 +24,7 @@ public class Weapon<T extends Projectile> {
     }
 
     public static Weapon<Projectile.timeBall> zapCannon() { /*Referências a cidade de deus KKKKK */
-        return new Weapon<>(200, Projectile.timeBall::new);
+        return new Weapon<>(100, Projectile.timeBall::new);
     }
 
     public static Weapon<Projectile.Ball> TripleCannon() {

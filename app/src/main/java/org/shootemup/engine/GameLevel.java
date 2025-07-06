@@ -42,7 +42,7 @@ public class GameLevel {
                 }
                 break;
             case "ShadowPlayer":
-                addEnemy(new Enemy.ShadowPlayer(new Vector2D(x, y), life), spawnTime);
+                addEnemy(new Enemy.ShadowPlayer(new Vector2D(x, y), life, spawnTime + 5000), spawnTime);
                 break;
             case "ZaWarudo":
                 addEnemy(new Enemy.ZaWarudo(new Vector2D(x, y), life, spawnTime + 5000), spawnTime);

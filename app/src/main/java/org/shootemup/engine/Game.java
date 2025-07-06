@@ -166,7 +166,7 @@ public class Game {
 
         // colisoes entre player e projeteis do tipo Ball
         projectiles.stream()
-            .filter(proj -> proj instanceof Projectile.Ball || proj instanceof Projectile.timeBall)
+            .filter(proj -> proj instanceof Projectile.Ball || proj instanceof Projectile.timeBall || proj instanceof Projectile.Laser)
             .forEach(proj -> {
                 if (player.intersects(proj)) {
                     player.damage(currentTime);
@@ -237,6 +237,10 @@ public class Game {
                     advancedEnemy.move(delta);
                     advancedEnemy.shot(currentTime).ifPresent(bullet -> projectiles.add(bullet));
                 }
+            } else if(e instanceof Enemy.ShadowPlayer){
+                Enemy.ShadowPlayer advancedEnemy = (Enemy.ShadowPlayer) e;
+                advancedEnemy.activateBossLaser(currentTime);
+                advancedEnemy.updateLaserTimer(delta);
             }
          });
     }

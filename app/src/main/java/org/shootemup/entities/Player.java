@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.shootemup.GameLib;
 import org.shootemup.components.Vector2D;
 import org.shootemup.components.Weapon;
+import org.shootemup.components.LifeBar;
 import org.shootemup.utils.Collidable;
 import org.shootemup.utils.Direction;
 import org.shootemup.utils.Shooter;
@@ -13,6 +14,7 @@ import org.shootemup.utils.Shooter;
 
 public class Player extends Entity implements Shooter {
     private int hp; // Pontos de vida
+    private LifeBar playerLife;
     private long damageCoolDown = 0;
     private boolean isAlive = true;
     private Weapon<? extends Projectile> pistolGun;
@@ -23,6 +25,7 @@ public class Player extends Entity implements Shooter {
     public Player(int hp, Vector2D pos, double radius, Vector2D velocity) {
         super(pos, velocity, radius, Color.BLUE);
         this.hp = hp;
+        playerLife = new LifeBar(this.color, hp, 655.0, 650.0);
         pistolGun = Weapon.Pistol();
         laserGun = Weapon.LaserPistol();
     }
@@ -79,7 +82,7 @@ public class Player extends Entity implements Shooter {
 
     public boolean isLaserModeActive() {
         boolean result = laserModeTimer > 0;
-        if(result) Powerup.LaserMode.renderEffect(position, laserModeTimer);
+        if(result) Powerup.LaserMode.renderEffect(position, laserModeTimer, true);
         return result;
     }
 
@@ -124,6 +127,8 @@ public class Player extends Entity implements Shooter {
 	    if (!isAlive) return;
     	GameLib.setColor(color);
 		GameLib.drawPlayer(position.getX(), position.getY(), radius);
+		playerLife.setFinalLife(this.getHP());
+        playerLife.render();
 	}
 
 

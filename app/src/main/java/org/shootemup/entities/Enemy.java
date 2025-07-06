@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.checkerframework.checker.units.qual.Current;
 import org.shootemup.GameLib;
 import org.shootemup.components.Vector2D;
 import org.shootemup.components.Weapon;
@@ -141,45 +142,90 @@ public abstract class Enemy extends Entity implements Shooter {
     public static class ShadowPlayer extends Enemy{
 
         private double angle;
-        protected LifeBar bossLife;
+        private LifeBar bossLife;
+
+        private boolean isAlive = true;
+        private Weapon<? extends Projectile> pistolGun;
+        private Weapon<? extends Projectile> laserGun;
+        private long laserModeTimer = 0;
+        private boolean canLaser = true;
+        private long nextBossLaser;
 
 
-        public ShadowPlayer(Vector2D pos, int life) {
+        public ShadowPlayer(Vector2D pos, int life, long nextBossLaser) {
            super(Color.RED, pos, 30.0, new Vector2D(0.05, 0.05), 1.0, life);
-           gun = Weapon.Cannon();
+           pistolGun = Weapon.Cannon();
+           laserGun = Weapon.LaserPistol();
            this.angle = (3 * Math.PI) / 2;
            this.rotationSpeed = 0.0;
-           bossLife = new LifeBar(this.color, life);
+           bossLife = new LifeBar(this.color, life, 105.0, 100.0);
+           this.nextBossLaser = nextBossLaser;
         }
 
+        public void activateBossLaser(long currentTime){
+            if(currentTime > nextBossLaser && canLaser){
+                laserModeTimer = Powerup.LaserMode.duration;
+                canLaser = false;
+            }
+        }
+
+        public boolean isLaserModeActive(long currentTime) {
+
+            boolean result = laserModeTimer > 0;
+            if(result) Powerup.LaserMode.renderEffect(position, laserModeTimer, false);
+            else{
+                if(!canLaser){
+                    nextBossLaser = currentTime + 10000;
+                    canLaser = true;
+                }
+            }
+            return result;
+        }
+
+        public void updateLaserTimer(long dt) {
+            laserModeTimer = laserModeTimer - dt < 0 ? 0 : laserModeTimer - dt;
+        }
 
         @Override
 		public Optional<Projectile> shot(long currentTime) {
-		    var bullet = gun.fire(currentTime, position, new Vector2D(0.0, 0.45));
-			if (bullet.isPresent()) {
-			    gun.setNextShot((long)(currentTime + 15 + Math.random() * gun.getReckoilMilis()));
-			}
-                  return bullet.map(b-> (Projectile)b);
+            if (isLaserModeActive(currentTime)) {
+                return laserShot(currentTime);
+            } else {
+                var bullet = pistolGun.fire(currentTime, position.addVector(new Vector2D(0.0, 20)), new Vector2D(0.0, 0.45));
+                if (bullet.isPresent()) {
+                    pistolGun.setNextShot((long)(currentTime + 5 + Math.random() * pistolGun.getReckoilMilis()));
+                }
+                return bullet.map(b-> (Projectile)b);
+            }
 		}
+
+		/// Tiro com laser
+        public Optional<Projectile> laserShot(long currentTime) {
+            if (!isAlive) return Optional.empty();
+            return laserGun.fire(
+                currentTime,
+                new Vector2D(position.x, position.y + 2 * radius),
+                new Vector2D(0.0, 2.0)
+            ).map(b -> (Projectile)b);
+        }
 
         @Override
         public void move(long dt) {
             double prevY = position.getY();
+            double prevX = position.getX();
 
-            position.x += 7 * (velocity.getX() * Math.cos(angle) * dt);
+            position.x += 8.2 * (velocity.getX() * Math.cos(angle) * dt);
             position.y -= 5 * (velocity.getY() * Math.sin(angle) * dt);
 
             angle += rotationSpeed * dt;
 
-            double threshold = GameLib.HEIGHT * 0.30;
+            double threshold = GameLib.HEIGHT * 0.3;
 
             if(prevY < threshold && position.getY() >= threshold){
-
-                if(position.getX() < GameLib.WIDTH / 2){
+                if(rotationSpeed == 0){
                     rotationSpeed = 0.004;
-                }
-                if(position.getX() >= GameLib.WIDTH / 2){
-                    rotationSpeed = -0.004;
+                } else {
+                    rotationSpeed = - rotationSpeed;
                 }
             }
         }
@@ -196,6 +242,7 @@ public abstract class Enemy extends Entity implements Shooter {
         }
     }
 
+    /// Inimigo ZaWarudo: oscila entre Diamond/Circle e para o tempo periodicamente
     public static class ZaWarudo extends Enemy{
 
         private LifeBar bossLife;
@@ -213,7 +260,7 @@ public abstract class Enemy extends Entity implements Shooter {
         public ZaWarudo(Vector2D pos, int life, long nextBossZawarudo) {
            super(Color.YELLOW, pos, 30.0, new Vector2D(0.05, 0.05), 1.0, life);
            gun = Weapon.zapCannon();
-           bossLife = new LifeBar(this.color, life);
+           bossLife = new LifeBar(this.color, life, 105.0, 100.0);
            this.nextBossZawarudo = nextBossZawarudo;
         }
 
