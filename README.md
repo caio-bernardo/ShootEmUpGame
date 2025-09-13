@@ -1,13 +1,17 @@
-# Exercício de Programação -- Computação Orientada à Objetos
+# Shoot 'Em Up
 
-Projeto contendo os arquivos para o Exercício de Programação (EP) e instruções de sua realização passados em aula.
+Clássico jogo 2D _Shoot'em up_. Controle uma espaço nave, atire nos inimigos e conquiste sua vitória. Esse projeto fez parte do Exercício de Prgramação do curso de Computação Orientada a Objetos.
 
-## Disclaimer
+## Features
 
-Esse repositório serve **apenas** como meio de compartilhamento do Exercício entre os integrantes do grupo. Não nos responsabilizamos por qualquer outro uso por parte de terceiros.
+O jogo é divido em fases, cada fase apresenta ondas de inimigos de diferentes tipos, _comum_ ou _voador_, cada fase encerra com o combate de um chefão, este pode ser do tipo _ShadowPlayer_ ou _ZaWaruudo_. Além disso, _powerups_ vão aparecer ao longo da fase. Dois _powerups_ estão disponíveis, o feixe de laser e o _ZaWarudo_. Fases podem ser customizadas através de arquivos .txt de configuração.
+
+O jogo é feito puramente com a linguagem Java.
+
+## Como jogar?
 
 
-## Como rodar?
+## Contribuição
 
 Possua a versão mais recente do _Java_ instalado em sua máquina, bem como uma versão do _Make_. Em um prompt de terminal execute a seguinte linha:
 ```sh
