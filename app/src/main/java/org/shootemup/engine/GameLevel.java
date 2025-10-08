@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.lang.IllegalStateException;
 
-import org.shootemup.GameLib;
 import org.shootemup.components.Vector2D;
 import org.shootemup.entities.Enemy;
 import org.shootemup.entities.Powerup;

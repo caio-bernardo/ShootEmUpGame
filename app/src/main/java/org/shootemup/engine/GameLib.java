@@ -1,8 +1,6 @@
-package org.shootemup;
+package org.shootemup.engine;
 
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Toolkit;
+import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
@@ -38,6 +36,7 @@ public class GameLib {
 	public static final int KEY_RIGHT = 3;
 	public static final int KEY_CONTROL = 4;
 	public static final int KEY_ESCAPE = 5;
+    public static final int KEY_SPACE = 6;
 
 	private static MyFrame frame = null;
 	private static Graphics g = null;
@@ -46,33 +45,30 @@ public class GameLib {
 	private static BufferedImage buffer = null;
 	private static boolean safe_mode = false;
 
-	public static void initGraphics(){
+    private static void initPrelude(String title) {
+        frame = new MyFrame(title);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(WIDTH, HEIGHT);
+        frame.setResizable(false);
+        frame.setVisible(true);
 
-		frame = new MyFrame("Projeto COO");
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setSize(WIDTH, HEIGHT);
-		frame.setResizable(false);
-		frame.setVisible(true);
+        keyboard = new MyKeyAdapter();
+        frame.addKeyListener(keyboard);
+        frame.requestFocus();
+    }
 
-		keyboard = new MyKeyAdapter();
-		frame.addKeyListener(keyboard);
-		frame.requestFocus();
+	public static void initGraphics(String title){
+
+		initPrelude(title);
 
 		frame.createBufferStrategy(2);
 		g = frame.getBufferStrategy().getDrawGraphics();
-	}
 
-	public static void initGraphics_SAFE_MODE(){
+    }
 
-		frame = new MyFrame("Projeto COO");
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setSize(WIDTH, HEIGHT);
-		frame.setResizable(false);
-		frame.setVisible(true);
+	public static void initGraphics_SAFE_MODE(String title){
 
-		keyboard = new MyKeyAdapter();
-		frame.addKeyListener(keyboard);
-		frame.requestFocus();
+        initPrelude(title);
 
 		frame.createBufferStrategy(1);
 
@@ -84,9 +80,13 @@ public class GameLib {
 	}
 
 	public static void setColor(Color c){
-
 		g.setColor(c);
 	}
+
+    public static void drawText(String text, double x, double y, int size) {
+        g.setFont(new Font("TimesRoman", Font.PLAIN, size));
+        g.drawString(text, (int)Math.round(x), (int)Math.round(y));
+    }
 
 	public static void drawLine(double x1, double y1, double x2, double y2){
 
@@ -203,12 +203,13 @@ class MyFrame extends JFrame {
 
 class MyKeyAdapter extends KeyAdapter{
 
-	private int [] codes = {	KeyEvent.VK_UP,
+	private final int [] codes = {	KeyEvent.VK_UP,
 					KeyEvent.VK_DOWN,
 					KeyEvent.VK_LEFT,
 					KeyEvent.VK_RIGHT,
 					KeyEvent.VK_CONTROL,
-					KeyEvent.VK_ESCAPE
+					KeyEvent.VK_ESCAPE,
+                    KeyEvent.VK_SPACE,
 				};
 
 	private boolean [] keyStates = null;
@@ -260,9 +261,8 @@ class MyKeyAdapter extends KeyAdapter{
 		boolean keyState = keyStates[index];
 		long keyReleaseTime = releaseTimeStamps[index];
 
-		if(keyState == false){
-
-			if(System.currentTimeMillis() - keyReleaseTime > 5) return false;
+		if(!keyState){
+            return System.currentTimeMillis() - keyReleaseTime <= 5;
 		}
 
 		return true;

@@ -3,7 +3,7 @@ package org.shootemup.entities;
 import java.awt.Color;
 import java.util.Optional;
 
-import org.shootemup.GameLib;
+import org.shootemup.engine.GameLib;
 import org.shootemup.components.Vector2D;
 import org.shootemup.components.Weapon;
 import org.shootemup.components.LifeBar;

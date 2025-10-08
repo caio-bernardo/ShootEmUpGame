@@ -2,7 +2,7 @@ package org.shootemup.components;
 
 import java.awt.Color;
 
-import org.shootemup.GameLib;
+import org.shootemup.engine.GameLib;
 import org.shootemup.utils.Renderable;
 
 

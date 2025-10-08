@@ -5,8 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import org.checkerframework.checker.units.qual.Current;
-import org.shootemup.GameLib;
+import org.shootemup.engine.GameLib;
 import org.shootemup.components.Vector2D;
 import org.shootemup.components.Weapon;
 import org.shootemup.components.LifeBar;

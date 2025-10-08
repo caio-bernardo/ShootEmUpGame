@@ -2,7 +2,7 @@ package org.shootemup.entities;
 
 import java.awt.Color;
 
-import org.shootemup.GameLib;
+import org.shootemup.engine.GameLib;
 import org.shootemup.components.Vector2D;
 
 /// Classe abstrata que representa um projétil

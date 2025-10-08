@@ -4,7 +4,7 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.shootemup.GameLib;
+import org.shootemup.engine.GameLib;
 import org.shootemup.utils.Renderable;
 
 /**

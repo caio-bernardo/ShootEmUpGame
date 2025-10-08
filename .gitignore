@@ -9,3 +9,5 @@ dst/
 build
 
 .settings/
+.idea/
+.project

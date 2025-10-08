@@ -1,12 +1,12 @@
 package org.shootemup.components;
 
-import org.shootemup.GameLib;
+import org.shootemup.engine.GameLib;
 
 public class Explosion {
-    private Vector2D position;
-    private long startTime;
+    private final Vector2D position;
+    private final long startTime;
     private long explosionDelta = 0;
-    private long duration;
+    private final long duration;
 
     public Explosion(Vector2D position, long starTime, long durationMilis){
         this.position = position;
